@@ -13,6 +13,7 @@ import io.github.aalsanie.boundedorigin.api.Artifact;
 import io.github.aalsanie.boundedorigin.api.Budget;
 import io.github.aalsanie.boundedorigin.api.MaterializationException;
 import io.github.aalsanie.boundedorigin.api.Operation;
+import io.github.aalsanie.boundedorigin.api.TrustLevel;
 import io.github.aalsanie.boundedorigin.core.BoundedOriginExecutor;
 import io.github.aalsanie.boundedorigin.store.fs.FileSystemArtifactStore;
 import java.io.ByteArrayInputStream;
@@ -49,6 +50,26 @@ final class CgitArtifactServiceTest {
   }
 
   @Test
+  void rejectsUntrustedMaterializationBeforeRendering() throws Exception {
+    AtomicInteger renders = new AtomicInteger();
+    try (Fixture fixture =
+        fixture(
+            (snapshot, operation) -> {
+              renders.incrementAndGet();
+              return artifact("unexpected");
+            })) {
+      assertThrows(
+          SecurityException.class,
+          () ->
+              fixture
+                  .service()
+                  .materialize(snapshot(1, 1), operation(), TrustLevel.UNTRUSTED));
+      assertEquals(0, renders.get());
+      assertTrue(fixture.service().lookup(snapshot(1, 1), operation()).isEmpty());
+    }
+  }
+
+  @Test
   void materializesPersistsAndReusesWithoutRenderingAgain() throws Exception {
     AtomicInteger renders = new AtomicInteger();
     try (Fixture fixture =
@@ -60,7 +81,7 @@ final class CgitArtifactServiceTest {
       RefGenerationSnapshot snapshot = snapshot(1, 1);
 
       CgitArtifactService.Materialization first =
-          fixture.service().materialize(snapshot, operation());
+          fixture.service().materialize(snapshot, operation(), TrustLevel.TRUSTED);
       first.completion().toCompletableFuture().get(5, TimeUnit.SECONDS);
 
       assertFalse(first.alreadyStored());
@@ -69,7 +90,7 @@ final class CgitArtifactServiceTest {
       assertEquals("generation=1", read(fixture.service().lookup(snapshot, operation())));
 
       CgitArtifactService.Materialization second =
-          fixture.service().materialize(snapshot, operation());
+          fixture.service().materialize(snapshot, operation(), TrustLevel.TRUSTED);
       second.completion().toCompletableFuture().get(5, TimeUnit.SECONDS);
 
       assertTrue(second.alreadyStored());
@@ -94,11 +115,11 @@ final class CgitArtifactServiceTest {
             })) {
       RefGenerationSnapshot snapshot = snapshot(1, 1);
       CgitArtifactService.Materialization first =
-          fixture.service().materialize(snapshot, operation());
+          fixture.service().materialize(snapshot, operation(), TrustLevel.TRUSTED);
       assertTrue(started.await(5, TimeUnit.SECONDS));
 
       CgitArtifactService.Materialization second =
-          fixture.service().materialize(snapshot, operation());
+          fixture.service().materialize(snapshot, operation(), TrustLevel.TRUSTED);
       assertTrue(second.joined());
 
       release.countDown();
@@ -121,9 +142,9 @@ final class CgitArtifactServiceTest {
       RefGenerationSnapshot first = snapshot(1, 1);
       RefGenerationSnapshot second = snapshot(2, 2);
 
-      fixture.service().materialize(first, operation()).completion()
+      fixture.service().materialize(first, operation(), TrustLevel.TRUSTED).completion()
           .toCompletableFuture().get(5, TimeUnit.SECONDS);
-      fixture.service().materialize(second, operation()).completion()
+      fixture.service().materialize(second, operation(), TrustLevel.TRUSTED).completion()
           .toCompletableFuture().get(5, TimeUnit.SECONDS);
 
       assertEquals(2, renders.get());
@@ -144,7 +165,7 @@ final class CgitArtifactServiceTest {
                     () -> new ByteArrayInputStream(bytes)))) {
       RefGenerationSnapshot snapshot = snapshot(1, 1);
       CgitArtifactService.Materialization materialization =
-          fixture.service().materialize(snapshot, operation());
+          fixture.service().materialize(snapshot, operation(), TrustLevel.TRUSTED);
 
       assertThrows(
           Exception.class,

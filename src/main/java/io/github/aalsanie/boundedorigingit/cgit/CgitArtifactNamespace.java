@@ -91,6 +91,21 @@ public final class CgitArtifactNamespace {
     return defaultRef;
   }
 
+  public String repository() {
+    return repository;
+  }
+
+  public void validate(Operation operation, RefGenerationSnapshot snapshot) {
+    Objects.requireNonNull(snapshot, "snapshot");
+    validatePinned(operation);
+    if (generation(operation) != snapshot.generation()) {
+      throw new IllegalArgumentException("pinned generation does not match ref snapshot");
+    }
+    if (!snapshotFingerprint(operation).equals(snapshotFingerprint(snapshot))) {
+      throw new IllegalArgumentException("pinned ref snapshot fingerprint does not match");
+    }
+  }
+
   private String canonicalize(Operation operation) {
     validatePinned(operation);
     return BASE_CANONICALIZER.canonicalize(operation);

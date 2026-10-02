@@ -58,9 +58,6 @@ export async function compareGit(options) {
   };
 
   checkAborted(request.signal);
-  if (request.oldOid === request.newOid) {
-    return result(request, [], budget);
-  }
 
   const oldTree = await resolveCommitTree(request.oldOid, context);
   const newTree = await resolveCommitTree(request.newOid, context);
@@ -109,6 +106,10 @@ function normalizeRequest(options) {
   const oldOid = normalizeOid(options.oldOid, oidLength, "oldOid");
   const newOid = normalizeOid(options.newOid, oidLength, "newOid");
   const path = normalizePath(options.path ?? "");
+  const limits = normalizeLimits(options.limits ?? {});
+  if (encoder.encode(path).length > limits.maxPathBytes) {
+    fail("LIMIT_EXCEEDED", "requested path exceeds configured byte limit");
+  }
   const context = integer(options.context ?? 3, 0, 40, "context");
   const ignoreWhitespace = boolean(options.ignoreWhitespace ?? false, "ignoreWhitespace");
   const mode = normalizeMode(options.mode ?? "unified");
@@ -135,13 +136,18 @@ function normalizeRequest(options) {
     hashBytes,
     readObject: options.readObject,
     signal: options.signal ?? null,
-    limits: normalizeLimits(options.limits ?? {})
+    limits
   };
 }
 
 function normalizeLimits(values) {
   if (!values || typeof values !== "object") {
     fail("INVALID_LIMIT", "limits must be an object");
+  }
+  for (const name of Object.keys(values)) {
+    if (!Object.hasOwn(HARD_LIMITS, name)) {
+      fail("INVALID_LIMIT", "unknown comparison limit " + name);
+    }
   }
   const result = {};
   for (const [name, hardMaximum] of Object.entries(HARD_LIMITS)) {
@@ -155,7 +161,10 @@ function normalizeLimits(values) {
 }
 
 function normalizeAlgorithm(value) {
-  const normalized = String(value).toUpperCase().replaceAll("_", "-");
+  if (typeof value !== "string") {
+    fail("UNSUPPORTED_HASH", "hashAlgorithm must be a string");
+  }
+  const normalized = value.toUpperCase().replaceAll("_", "-");
   if (normalized === "SHA1") {
     return "SHA-1";
   }

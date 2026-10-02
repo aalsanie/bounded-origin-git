@@ -476,7 +476,7 @@ async function compareEntry(path, oldEntry, newEntry, request, context) {
   }
 
   const diff = lineDiff(oldText.lines, newText.lines, request.ignoreWhitespace, context);
-  if (diff.additions === 0 && diff.deletions === 0 && !modeChanged) {
+  if (diff.additions === 0 && diff.deletions === 0 && !modeChanged && oldEntry && newEntry) {
     return null;
   }
 

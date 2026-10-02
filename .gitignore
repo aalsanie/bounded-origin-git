@@ -3,5 +3,3 @@ build/
 out/
 .idea/
 *.iml
-.codex.md
-.codex-context/

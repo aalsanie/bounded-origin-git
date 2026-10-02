@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import io.github.aalsanie.boundedorigin.api.Budget;
 import io.github.aalsanie.boundedorigin.api.Operation;
 import io.github.aalsanie.boundedorigin.core.BoundedOriginExecutor;
+import io.github.aalsanie.boundedorigin.core.OriginExecutorMetrics;
 import io.github.aalsanie.boundedorigin.proxy.GatewayConfig;
 import io.github.aalsanie.boundedorigin.store.fs.FileSystemArtifactStore;
 import java.nio.file.Path;
@@ -26,10 +27,11 @@ final class ReleasedArtifactsTest {
     assertEquals("external-consumer", operation.type());
     assertEquals(1, budget.maxActive());
 
-    try (BoundedOriginExecutor ignored =
+    try (BoundedOriginExecutor executor =
             new BoundedOriginExecutor(budget, Duration.ofMillis(1), 16);
         FileSystemArtifactStore store =
             new FileSystemArtifactStore(temporaryDirectory.resolve("store"), 4096, 16)) {
+      assertEquals(0, OriginExecutorMetrics.snapshot(executor).activeJobs());
       assertEquals(0, store.stats().entryCount());
     }
 

@@ -22,9 +22,11 @@ import java.nio.file.StandardOpenOption;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
@@ -85,6 +87,11 @@ public final class ProcessCgitRenderer implements CgitRenderer {
     if (terminationGrace.isNegative() || terminationGrace.isZero()) {
       throw new IllegalArgumentException("terminationGrace must be positive");
     }
+    try {
+      terminationGrace.toNanos();
+    } catch (ArithmeticException exception) {
+      throw new IllegalArgumentException("terminationGrace is too large", exception);
+    }
 
     Path root = workRoot.toAbsolutePath().normalize();
     Files.createDirectories(root);
@@ -124,12 +131,19 @@ public final class ProcessCgitRenderer implements CgitRenderer {
           }
           return output.artifact();
         } catch (InterruptedException exception) {
+          MaterializationException failure =
+              new MaterializationException("cgit rendering was interrupted", exception);
           terminate(process);
           stdout.cancel(true);
           stderr.cancel(true);
-          closeOutput(output);
-          Thread.currentThread().interrupt();
-          throw new MaterializationException("cgit rendering was interrupted", exception);
+          try {
+            closeOutput(output);
+          } catch (MaterializationException cleanup) {
+            failure.addSuppressed(cleanup);
+          } finally {
+            Thread.currentThread().interrupt();
+          }
+          throw failure;
         } catch (ExecutionException exception) {
           terminate(process);
           stdout.cancel(true);
@@ -298,28 +312,62 @@ public final class ProcessCgitRenderer implements CgitRenderer {
   }
 
   private void terminate(Process process) {
-    List<ProcessHandle> descendants = process.toHandle().descendants().toList();
-    descendants.forEach(ProcessHandle::destroy);
-    process.destroy();
-    waitForExit(process, terminationGrace);
+    boolean interrupted = Thread.interrupted();
+    ProcessHandle root = process.toHandle();
+    Set<ProcessHandle> descendants = new LinkedHashSet<>();
+    collectDescendants(root, descendants);
 
-    process.toHandle().descendants()
-        .filter(ProcessHandle::isAlive)
-        .forEach(ProcessHandle::destroyForcibly);
+    descendants.forEach(ProcessHandle::destroy);
+    root.destroy();
+    interrupted |= waitForExit(process, terminationGrace);
+
+    collectDescendants(root, descendants);
+    for (ProcessHandle descendant : List.copyOf(descendants)) {
+      collectDescendants(descendant, descendants);
+    }
     descendants.stream()
         .filter(ProcessHandle::isAlive)
         .forEach(ProcessHandle::destroyForcibly);
-    if (process.isAlive()) {
-      process.destroyForcibly();
+    if (root.isAlive()) {
+      root.destroyForcibly();
     }
-    waitForExit(process, terminationGrace);
+
+    descendants.forEach(ProcessCgitRenderer::awaitExit);
+    awaitExit(root);
+    if (interrupted) {
+      Thread.currentThread().interrupt();
+    }
   }
 
-  private static void waitForExit(Process process, Duration duration) {
-    try {
-      process.waitFor(duration.toMillis(), TimeUnit.MILLISECONDS);
-    } catch (InterruptedException exception) {
-      Thread.currentThread().interrupt();
+  private static boolean waitForExit(Process process, Duration duration) {
+    long timeoutNanos = duration.toNanos();
+    long started = System.nanoTime();
+    boolean interrupted = false;
+    while (process.isAlive()) {
+      long elapsed = System.nanoTime() - started;
+      long remaining = timeoutNanos - elapsed;
+      if (remaining <= 0) {
+        return interrupted;
+      }
+      try {
+        if (process.waitFor(remaining, TimeUnit.NANOSECONDS)) {
+          return interrupted;
+        }
+      } catch (InterruptedException exception) {
+        interrupted = true;
+      }
+    }
+    return interrupted;
+  }
+
+  private static void collectDescendants(
+      ProcessHandle root, Set<ProcessHandle> descendants) {
+    root.descendants().forEach(descendants::add);
+  }
+
+  private static void awaitExit(ProcessHandle handle) {
+    if (handle.isAlive()) {
+      handle.onExit().join();
     }
   }
 

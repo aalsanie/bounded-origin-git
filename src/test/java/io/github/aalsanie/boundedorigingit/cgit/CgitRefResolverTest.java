@@ -108,7 +108,7 @@ final class CgitRefResolverTest {
   }
 
   private static GitObjectId objectId(byte[] payload) {
-    MessageDigest digest = GitHashAlgorithm.SHA1.newDigest();
+    MessageDigest digest = MessageDigest.getInstance("SHA-1");
     digest.update(
         ("blob " + payload.length + "\0").getBytes(StandardCharsets.US_ASCII));
     digest.update(payload);

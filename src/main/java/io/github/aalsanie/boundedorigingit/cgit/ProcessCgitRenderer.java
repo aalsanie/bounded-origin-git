@@ -52,7 +52,7 @@ public final class ProcessCgitRenderer implements CgitRenderer {
           "follow");
 
   private final List<String> command;
-  private final String repository;
+  private final CgitArtifactNamespace namespace;
   private final GitRepositoryViewFactory views;
   private final Path artifactDirectory;
   private final long maxArtifactBytes;
@@ -62,17 +62,16 @@ public final class ProcessCgitRenderer implements CgitRenderer {
 
   public ProcessCgitRenderer(
       List<String> command,
-      String repository,
+      CgitArtifactNamespace namespace,
       Path workRoot,
       GitObjectStore objectStore,
-      GitRefName defaultRef,
       long maxArtifactBytes,
       int maxHeaderBytes,
       int maxStderrBytes,
       Duration terminationGrace)
       throws IOException {
     this.command = validatedCommand(command);
-    this.repository = requireRepository(repository);
+    this.namespace = Objects.requireNonNull(namespace, "namespace");
     Objects.requireNonNull(workRoot, "workRoot");
     if (maxArtifactBytes <= 0) {
       throw new IllegalArgumentException("maxArtifactBytes must be positive");
@@ -95,7 +94,8 @@ public final class ProcessCgitRenderer implements CgitRenderer {
       throw new IOException("cgit work root must be a local directory");
     }
     this.views =
-        new GitRepositoryViewFactory(root.resolve("views"), objectStore, defaultRef);
+        new GitRepositoryViewFactory(
+            root.resolve("views"), objectStore, namespace.defaultRef());
     this.artifactDirectory = root.resolve("artifacts");
     Files.createDirectories(artifactDirectory);
   }
@@ -103,8 +103,7 @@ public final class ProcessCgitRenderer implements CgitRenderer {
   @Override
   public Artifact render(RefGenerationSnapshot snapshot, Operation operation)
       throws MaterializationException {
-    Objects.requireNonNull(snapshot, "snapshot");
-    validateOperation(operation);
+    namespace.validate(operation, snapshot);
 
     try (GitRepositoryView view = views.create(snapshot)) {
       Path config = writeCgitConfig(view.path());
@@ -150,9 +149,9 @@ public final class ProcessCgitRenderer implements CgitRenderer {
     }
   }
 
-  private Process start(Path repositoryView, Path config, String query) throws IOException {
+  private Process start(Path namespace.repository()View, Path config, String query) throws IOException {
     ProcessBuilder builder = new ProcessBuilder(command);
-    builder.directory(repositoryView.toFile());
+    builder.directory(namespace.repository()View.toFile());
     Map<String, String> environment = builder.environment();
     String systemRoot = environment.get("SystemRoot");
     String windowsDirectory = environment.get("WINDIR");
@@ -167,7 +166,7 @@ public final class ProcessCgitRenderer implements CgitRenderer {
     environment.put("HTTP_HOST", "localhost");
     environment.put("SERVER_NAME", "localhost");
     environment.put("SERVER_PORT", "80");
-    environment.put("HOME", repositoryView.toString());
+    environment.put("HOME", namespace.repository()View.toString());
     environment.put("GIT_CONFIG_NOSYSTEM", "1");
     return builder.start();
   }
@@ -179,7 +178,7 @@ public final class ProcessCgitRenderer implements CgitRenderer {
             + "enable-http-clone=0\n"
             + "enable-index-owner=0\n"
             + "repo.url="
-            + repository
+            + namespace.repository()
             + "\nrepo.path="
             + view
             + "\n";
@@ -339,7 +338,7 @@ public final class ProcessCgitRenderer implements CgitRenderer {
 
   private String query(Operation operation) {
     List<Map.Entry<String, String>> values = new ArrayList<>();
-    values.add(Map.entry("r", single(operation, "repository")));
+    values.add(Map.entry("r", single(operation, "namespace.repository()")));
     values.add(Map.entry("p", single(operation, "page")));
     optional(operation, "path").ifPresent(value -> values.add(Map.entry("path", value)));
     for (String dimension : QUERY_DIMENSIONS) {
@@ -362,8 +361,8 @@ public final class ProcessCgitRenderer implements CgitRenderer {
     if (!"cgit-render".equals(operation.type())) {
       throw new IllegalArgumentException("unexpected operation type " + operation.type());
     }
-    if (!repository.equals(single(operation, "repository"))) {
-      throw new IllegalArgumentException("operation targets a different repository");
+    if (!namespace.repository().equals(single(operation, "namespace.repository()"))) {
+      throw new IllegalArgumentException("operation targets a different namespace.repository()");
     }
     single(operation, "generation");
     single(operation, "refSnapshot");
@@ -461,16 +460,6 @@ public final class ProcessCgitRenderer implements CgitRenderer {
       }
     }
     return copy;
-  }
-
-  private static String requireRepository(String repository) {
-    Objects.requireNonNull(repository, "repository");
-    if (repository.isBlank()
-        || repository.indexOf('\n') >= 0
-        || repository.indexOf('\r') >= 0) {
-      throw new IllegalArgumentException("invalid repository");
-    }
-    return repository;
   }
 
   private static void preserve(

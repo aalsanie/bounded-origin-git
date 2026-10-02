@@ -3,6 +3,8 @@ package io.github.aalsanie.boundedorigingit.cgit;
 import io.github.aalsanie.boundedorigin.api.Canonicalizer;
 import io.github.aalsanie.boundedorigin.api.Canonicalizers;
 import io.github.aalsanie.boundedorigin.api.Operation;
+import io.github.aalsanie.boundedorigin.api.PolicyMatcher;
+import io.github.aalsanie.boundedorigin.api.RequestDescriptor;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -16,7 +18,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
-public final class CgitSemanticClassifier {
+public final class CgitSemanticClassifier implements PolicyMatcher {
+  private static final String REQUEST_TYPE = "http.request";
   private static final String OPERATION_TYPE = "cgit-render";
   private static final int MAX_PATH_LENGTH = 4096;
   private static final int MAX_QUERY_LENGTH = 8192;
@@ -113,11 +116,35 @@ public final class CgitSemanticClassifier {
             .toList();
   }
 
-  public Optional<Operation> classify(String pathInfo, String rawQuery) {
-    if (pathInfo != null && pathInfo.length() > MAX_PATH_LENGTH) {
+  @Override
+  public Optional<Operation> classify(RequestDescriptor request) {
+    Objects.requireNonNull(request, "request");
+    if (!REQUEST_TYPE.equals(request.name())) {
+      return Optional.empty();
+    }
+    String method = singleAttribute(request, "method");
+    if (!"GET".equals(method)) {
+      return Optional.empty();
+    }
+    String pathInfo = singleAttribute(request, "path");
+    String rawQuery = optionalSingleAttribute(request, "query").orElse(null);
+    return classifyRequest(pathInfo, rawQuery);
+  }
+
+  public Canonicalizer canonicalizer() {
+    return CANONICALIZER;
+  }
+
+  private Optional<Operation> classifyRequest(String pathInfo, String rawQuery) {
+    if (pathInfo.length() > MAX_PATH_LENGTH) {
       return Optional.empty();
     }
     if (rawQuery != null && rawQuery.length() > MAX_QUERY_LENGTH) {
+      return Optional.empty();
+    }
+
+    Optional<String> normalizedPathInfo = normalizePathInfo(pathInfo);
+    if (normalizedPathInfo.isEmpty()) {
       return Optional.empty();
     }
 
@@ -127,7 +154,7 @@ public final class CgitSemanticClassifier {
     }
     Map<String, String> query = new LinkedHashMap<>(parsedQuery.orElseThrow());
 
-    Optional<Route> parsedRoute = parseRoute(pathInfo, query);
+    Optional<Route> parsedRoute = parseRoute(normalizedPathInfo.orElseThrow(), query);
     if (parsedRoute.isEmpty()) {
       return Optional.empty();
     }
@@ -140,16 +167,8 @@ public final class CgitSemanticClassifier {
     return dimensions.map(values -> new Operation(OPERATION_TYPE, values));
   }
 
-  public String canonicalize(Operation operation) {
-    Objects.requireNonNull(operation, "operation");
-    if (!OPERATION_TYPE.equals(operation.type())) {
-      throw new IllegalArgumentException("unexpected operation type " + operation.type());
-    }
-    return CANONICALIZER.canonicalize(operation);
-  }
-
   private Optional<Route> parseRoute(String pathInfo, Map<String, String> query) {
-    boolean hasPathRoute = pathInfo != null && !pathInfo.isBlank() && !"/".equals(pathInfo);
+    boolean hasPathRoute = !pathInfo.isBlank() && !"/".equals(pathInfo);
     boolean hasUrl = query.containsKey("url");
     boolean hasLegacyRoute =
         query.containsKey("r") || query.containsKey("p") || query.containsKey("path");
@@ -518,6 +537,62 @@ public final class CgitSemanticClassifier {
     return Optional.of(Map.copyOf(result));
   }
 
+  private static Optional<String> normalizePathInfo(String path) {
+    if (path.isBlank() || "*".equals(path)) {
+      return Optional.of(path);
+    }
+
+    StringBuilder normalized = new StringBuilder(path.length());
+    for (int index = 0; index < path.length(); index++) {
+      char character = path.charAt(index);
+      if (character != '%') {
+        if (character < 0x21 || character > 0x7e || character == '\\' || character == '#') {
+          return Optional.empty();
+        }
+        normalized.append(character);
+        continue;
+      }
+
+      if (index + 2 >= path.length()) {
+        return Optional.empty();
+      }
+      int high = Character.digit(path.charAt(index + 1), 16);
+      int low = Character.digit(path.charAt(index + 2), 16);
+      if (high < 0 || low < 0) {
+        return Optional.empty();
+      }
+      char decoded = (char) ((high << 4) | low);
+      if (decoded == '/' || decoded == '\\' || decoded == 0) {
+        return Optional.empty();
+      }
+      if (isUnreserved(decoded)) {
+        normalized.append(decoded);
+      } else {
+        normalized.append('%');
+        normalized.append(Character.toUpperCase(path.charAt(index + 1)));
+        normalized.append(Character.toUpperCase(path.charAt(index + 2)));
+      }
+      index += 2;
+    }
+
+    for (String segment : normalized.toString().split("/", -1)) {
+      if (".".equals(segment) || "..".equals(segment)) {
+        return Optional.empty();
+      }
+    }
+    return Optional.of(normalized.toString());
+  }
+
+  private static boolean isUnreserved(char character) {
+    return character >= 'a' && character <= 'z'
+        || character >= 'A' && character <= 'Z'
+        || character >= '0' && character <= '9'
+        || character == '-'
+        || character == '.'
+        || character == '_'
+        || character == '~';
+  }
+
   private static String normalizePath(String path) {
     if (path == null) {
       return null;
@@ -540,6 +615,25 @@ public final class CgitSemanticClassifier {
       return "tags";
     }
     return null;
+  }
+
+  private static String singleAttribute(RequestDescriptor request, String name) {
+    List<String> values = request.attributes().get(name);
+    if (values == null || values.size() != 1 || values.getFirst().isBlank()) {
+      throw new IllegalArgumentException(name + " must contain exactly one non-blank value");
+    }
+    return values.getFirst();
+  }
+
+  private static Optional<String> optionalSingleAttribute(RequestDescriptor request, String name) {
+    List<String> values = request.attributes().get(name);
+    if (values == null) {
+      return Optional.empty();
+    }
+    if (values.size() != 1) {
+      throw new IllegalArgumentException(name + " must contain exactly one value");
+    }
+    return Optional.of(values.getFirst());
   }
 
   private static void validateRepository(String repositoryUrl) {

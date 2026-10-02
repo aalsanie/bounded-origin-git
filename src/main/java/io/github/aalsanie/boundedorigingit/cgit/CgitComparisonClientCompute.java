@@ -5,7 +5,9 @@ import io.github.aalsanie.boundedorigin.api.Operation;
 import io.github.aalsanie.boundedorigin.api.OriginPolicy;
 import io.github.aalsanie.boundedorigin.api.RequestDescriptor;
 import io.github.aalsanie.boundedorigin.core.PolicyRule;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -54,13 +56,38 @@ public final class CgitComparisonClientCompute {
     if (classified.isEmpty()) {
       return Optional.empty();
     }
+
     Operation operation = classified.orElseThrow();
-    if (!single(operation, "page").filter("diff"::equals).isPresent()
-        || single(operation, "oid").isEmpty()
-        || single(operation, "oid2").isEmpty()) {
+    Optional<String> page = single(operation, "page");
+    Optional<String> newer = single(operation, "oid");
+    Optional<String> older = single(operation, "oid2");
+    if (page.filter("diff"::equals).isEmpty()
+        || newer.isEmpty()
+        || older.isEmpty()
+        || operation.dimensions().containsKey("follow")
+        || !fullObjectId(newer.orElseThrow())
+        || !fullObjectId(older.orElseThrow())
+        || newer.orElseThrow().length() != older.orElseThrow().length()) {
       return Optional.empty();
     }
-    return Optional.of(operation);
+
+    Map<String, List<String>> dimensions = new LinkedHashMap<>(operation.dimensions());
+    dimensions.remove("head");
+    dimensions.put("oid", List.of(newer.orElseThrow().toLowerCase(Locale.ROOT)));
+    dimensions.put("oid2", List.of(older.orElseThrow().toLowerCase(Locale.ROOT)));
+    return Optional.of(new Operation(operation.type(), dimensions));
+  }
+
+  private static boolean fullObjectId(String value) {
+    if (value.length() != 40 && value.length() != 64) {
+      return false;
+    }
+    for (int index = 0; index < value.length(); index++) {
+      if (Character.digit(value.charAt(index), 16) < 0) {
+        return false;
+      }
+    }
+    return true;
   }
 
   private static Optional<String> single(Operation operation, String dimension) {

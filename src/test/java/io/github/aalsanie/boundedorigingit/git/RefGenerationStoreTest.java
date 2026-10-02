@@ -236,6 +236,22 @@ final class RefGenerationStoreTest {
   }
 
   @Test
+  void supportsLegalRefNamesContainingChecksumText() throws Exception {
+    Fixture fixture = fixture("checksum-ref");
+    GitObjectId object = fixture.object("object");
+
+    fixture.refs().publish(
+        List.of(create("refs/heads/checksum=value", object)), TrustLevel.TRUSTED);
+
+    RefGenerationStore restarted =
+        new RefGenerationStore(
+            fixture.root().resolve("refs"), "project", fixture.objects(), 16, 8);
+    assertEquals(
+        Optional.of(object),
+        restarted.resolve(new GitRefName("refs/heads/checksum=value")));
+  }
+
+  @Test
   void supportsRefDeletionInNewGeneration() throws Exception {
     Fixture fixture = fixture("delete");
     GitObjectId main = fixture.object("main");

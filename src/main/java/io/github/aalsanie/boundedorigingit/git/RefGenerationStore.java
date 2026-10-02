@@ -131,7 +131,10 @@ public final class RefGenerationStore {
       rejectSymlink(lockFile, "publication lock");
       try (FileChannel channel =
               FileChannel.open(lockFile, StandardOpenOption.CREATE, StandardOpenOption.WRITE);
-          FileLock ignored = channel.lock()) {
+          FileLock lock = channel.lock()) {
+        if (!lock.isValid()) {
+          throw new IOException("ref generation publication lock is not valid");
+        }
         RefGenerationSnapshot base = readPublished();
         RefGenerationSnapshot next = apply(base, batch);
         writePublished(next);

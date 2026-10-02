@@ -22,6 +22,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.HexFormat;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +30,7 @@ import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -38,6 +40,12 @@ final class RenderOnWriteIngestorTest {
       Canonicalizers.byDimensions("repository", "page", "oid");
 
   @TempDir Path temporaryDirectory;
+  private final List<BoundedOriginExecutor> executors = new ArrayList<>();
+
+  @AfterEach
+  void closeExecutors() {
+    executors.forEach(BoundedOriginExecutor::close);
+  }
 
   @Test
   void rejectsUntrustedEventsBeforePlanning() throws Exception {
@@ -83,6 +91,16 @@ final class RenderOnWriteIngestorTest {
     assertThrows(
         IllegalStateException.class,
         () -> ingestor.ingest(event, TrustLevel.TRUSTED));
+
+    RepositoryUpdateEvent deletion =
+        new RepositoryUpdateEvent(
+            "project",
+            new GitRefName("refs/heads/main"),
+            Optional.of(unknown),
+            Optional.empty());
+    assertThrows(
+        IllegalStateException.class,
+        () -> ingestor.ingest(deletion, TrustLevel.TRUSTED));
   }
 
   @Test
@@ -294,6 +312,7 @@ final class RenderOnWriteIngestorTest {
 
     BoundedOriginExecutor executor =
         new BoundedOriginExecutor(BUDGET, Duration.ofMillis(10), 16);
+    executors.add(executor);
     OriginPolicy policy =
         OriginPolicy.materialize(
             "render",

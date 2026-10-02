@@ -36,6 +36,22 @@ final class CgitArtifactServiceTest {
   @TempDir Path temporaryDirectory;
 
   @Test
+  void rejectsInvalidRepositoryNamespace() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () ->
+            new CgitArtifactNamespace(
+                "project\nrepo.path=/tmp/other",
+                new GitRefName("refs/heads/main")));
+    assertThrows(
+        IllegalArgumentException.class,
+        () ->
+            new CgitArtifactNamespace(
+                "/project",
+                new GitRefName("refs/heads/main")));
+  }
+
+  @Test
   void lookupMissNeverInvokesRenderer() throws Exception {
     AtomicInteger renders = new AtomicInteger();
     try (Fixture fixture =

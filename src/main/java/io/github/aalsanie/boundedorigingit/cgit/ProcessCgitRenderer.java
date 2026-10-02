@@ -1,7 +1,6 @@
 package io.github.aalsanie.boundedorigingit.cgit;
 
 import io.github.aalsanie.boundedorigingit.git.GitObjectStore;
-import io.github.aalsanie.boundedorigingit.git.GitRefName;
 import io.github.aalsanie.boundedorigingit.git.GitRepositoryView;
 import io.github.aalsanie.boundedorigingit.git.GitRepositoryViewFactory;
 import io.github.aalsanie.boundedorigingit.git.RefGenerationSnapshot;
@@ -113,32 +112,31 @@ public final class ProcessCgitRenderer implements CgitRenderer {
             tasks.submit(() -> readOutput(process.getInputStream()));
         Future<String> stderr =
             tasks.submit(() -> readBounded(process.getErrorStream(), maxStderrBytes));
-
-        CgiOutput output;
-        String error;
+        CgiOutput output = null;
         try {
           output = stdout.get();
           int exit = process.waitFor();
-          error = stderr.get();
+          String error = stderr.get();
           if (exit != 0) {
             output.close();
             throw new MaterializationException(
                 "cgit exited with status " + exit + boundedSuffix(error));
           }
+          return output.artifact();
         } catch (InterruptedException exception) {
           terminate(process);
           stdout.cancel(true);
           stderr.cancel(true);
+          closeOutput(output);
           Thread.currentThread().interrupt();
           throw new MaterializationException("cgit rendering was interrupted", exception);
         } catch (ExecutionException exception) {
           terminate(process);
           stdout.cancel(true);
           stderr.cancel(true);
+          closeOutput(output);
           throw outputFailure(exception);
         }
-
-        return output.artifact();
       } finally {
         if (process.isAlive()) {
           terminate(process);
@@ -149,9 +147,9 @@ public final class ProcessCgitRenderer implements CgitRenderer {
     }
   }
 
-  private Process start(Path namespace.repository()View, Path config, String query) throws IOException {
+  private Process start(Path repositoryView, Path config, String query) throws IOException {
     ProcessBuilder builder = new ProcessBuilder(command);
-    builder.directory(namespace.repository()View.toFile());
+    builder.directory(repositoryView.toFile());
     Map<String, String> environment = builder.environment();
     String systemRoot = environment.get("SystemRoot");
     String windowsDirectory = environment.get("WINDIR");
@@ -166,7 +164,7 @@ public final class ProcessCgitRenderer implements CgitRenderer {
     environment.put("HTTP_HOST", "localhost");
     environment.put("SERVER_NAME", "localhost");
     environment.put("SERVER_PORT", "80");
-    environment.put("HOME", namespace.repository()View.toString());
+    environment.put("HOME", repositoryView.toString());
     environment.put("GIT_CONFIG_NOSYSTEM", "1");
     return builder.start();
   }
@@ -238,13 +236,13 @@ public final class ProcessCgitRenderer implements CgitRenderer {
         throw new IOException("cgit emitted a malformed CGI header");
       }
       String name = value.substring(0, separator).trim();
-      String content = value.substring(separator + 1).trim();
+      String headerValue = value.substring(separator + 1).trim();
       if (name.equalsIgnoreCase("Status")) {
         if (statusSeen) {
           throw new IOException("cgit emitted duplicate Status headers");
         }
         statusSeen = true;
-        status = parseStatus(content);
+        status = parseStatus(headerValue);
         continue;
       }
 
@@ -256,7 +254,7 @@ public final class ProcessCgitRenderer implements CgitRenderer {
             case "location" -> "Location";
             default -> null;
           };
-      if (canonical != null && metadata.putIfAbsent(canonical, content) != null) {
+      if (canonical != null && metadata.putIfAbsent(canonical, headerValue) != null) {
         throw new IOException("cgit emitted duplicate reusable response metadata");
       }
     }
@@ -305,6 +303,9 @@ public final class ProcessCgitRenderer implements CgitRenderer {
     process.destroy();
     waitForExit(process, terminationGrace);
 
+    process.toHandle().descendants()
+        .filter(ProcessHandle::isAlive)
+        .forEach(ProcessHandle::destroyForcibly);
     descendants.stream()
         .filter(ProcessHandle::isAlive)
         .forEach(ProcessHandle::destroyForcibly);
@@ -338,7 +339,7 @@ public final class ProcessCgitRenderer implements CgitRenderer {
 
   private String query(Operation operation) {
     List<Map.Entry<String, String>> values = new ArrayList<>();
-    values.add(Map.entry("r", single(operation, "namespace.repository()")));
+    values.add(Map.entry("r", single(operation, "repository")));
     values.add(Map.entry("p", single(operation, "page")));
     optional(operation, "path").ifPresent(value -> values.add(Map.entry("path", value)));
     for (String dimension : QUERY_DIMENSIONS) {
@@ -354,20 +355,6 @@ public final class ProcessCgitRenderer implements CgitRenderer {
       query.append(encode(value.getKey())).append('=').append(encode(value.getValue()));
     }
     return query.toString();
-  }
-
-  private void validateOperation(Operation operation) {
-    Objects.requireNonNull(operation, "operation");
-    if (!"cgit-render".equals(operation.type())) {
-      throw new IllegalArgumentException("unexpected operation type " + operation.type());
-    }
-    if (!namespace.repository().equals(single(operation, "namespace.repository()"))) {
-      throw new IllegalArgumentException("operation targets a different namespace.repository()");
-    }
-    single(operation, "generation");
-    single(operation, "refSnapshot");
-    single(operation, "defaultRef");
-    single(operation, "page");
   }
 
   private static String queryName(String dimension) {
@@ -466,6 +453,17 @@ public final class ProcessCgitRenderer implements CgitRenderer {
       Map<String, String> environment, String name, String value) {
     if (value != null) {
       environment.put(name, value);
+    }
+  }
+
+  private static void closeOutput(CgiOutput output) throws MaterializationException {
+    if (output == null) {
+      return;
+    }
+    try {
+      output.close();
+    } catch (IOException exception) {
+      throw new MaterializationException("failed to release cgit output", exception);
     }
   }
 

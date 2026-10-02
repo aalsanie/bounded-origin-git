@@ -66,7 +66,7 @@ public final class CgitRenderOnWriteCoordinator {
     List<CgitArtifactService.Materialization> materializations =
         new ArrayList<>(planned.size());
     for (Operation operation : planned) {
-      materializations.add(artifacts.materialize(snapshot, operation));
+      materializations.add(artifacts.materialize(snapshot, operation, trustLevel));
     }
     return CgitMaterializationBatch.of(snapshot, materializations);
   }

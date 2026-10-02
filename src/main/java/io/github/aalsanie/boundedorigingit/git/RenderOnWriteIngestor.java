@@ -56,6 +56,7 @@ public final class RenderOnWriteIngestor {
     if (!repository.equals(event.repository())) {
       throw new IllegalArgumentException("repository update targets a different repository");
     }
+    event.before().ifPresent(this::requireIngestedObject);
     event.after().ifPresent(this::requireIngestedObject);
 
     List<OriginDecision.Selected> decisions = decisions(event);

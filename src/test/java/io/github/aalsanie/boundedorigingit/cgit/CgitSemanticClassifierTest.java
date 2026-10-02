@@ -8,8 +8,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import io.github.aalsanie.boundedorigin.api.Operation;
 import io.github.aalsanie.boundedorigin.api.RequestDescriptor;
 import io.github.aalsanie.boundedorigin.api.TrustLevel;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 
 final class CgitSemanticClassifierTest {
@@ -22,17 +24,17 @@ final class CgitSemanticClassifierTest {
         classify("/group/repo/tree/src/main/App.java", "h=main&id=abc123");
     Operation url =
         classify(
-            null,
+            "/",
             "url=group%2Frepo%2Ftree%2Fsrc%2Fmain%2FApp.java&h=main&id=abc123");
     Operation legacy =
         classify(
-            null,
+            "/",
             "r=group%2Frepo&p=tree&path=src%2Fmain%2FApp.java%2F&h=main&id=abc123");
 
     assertEquals(virtual, url);
     assertEquals(virtual, legacy);
-    assertEquals(classifier.canonicalizer().canonicalize(virtual), classifier.canonicalizer().canonicalize(url));
-    assertEquals(classifier.canonicalizer().canonicalize(virtual), classifier.canonicalizer().canonicalize(legacy));
+    assertEquals(canonicalize(virtual), canonicalize(url));
+    assertEquals(canonicalize(virtual), canonicalize(legacy));
   }
 
   @Test
@@ -47,8 +49,8 @@ final class CgitSemanticClassifierTest {
   @Test
   void canonicalizesRepositoryRootToSummary() {
     Operation virtual = classify("/project/", null);
-    Operation url = classify(null, "url=%2Fproject");
-    Operation legacy = classify(null, "r=project");
+    Operation url = classify("/", "url=%2Fproject");
+    Operation legacy = classify("/", "r=project");
 
     assertEquals(virtual, url);
     assertEquals(virtual, legacy);
@@ -70,15 +72,14 @@ final class CgitSemanticClassifierTest {
 
     assertEquals(encodedPath, plainPath);
     assertEquals(first, second);
-    assertEquals(
-        classifier.canonicalizer().canonicalize(first),
-        classifier.canonicalizer().canonicalize(second));
+    assertEquals(canonicalize(first), canonicalize(second));
   }
 
   @Test
   void canonicalizesCgitAliasesAndDefaults() {
     Operation sideBySide = classify("/project/diff/src", "id=new&id2=old&ss=1");
-    Operation explicitType = classify("/project/diff/src/", "id=new&id2=old&dt=1&context=3");
+    Operation explicitType =
+        classify("/project/diff/src/", "id=new&id2=old&dt=1&context=3");
     Operation weekly = classify("/project/stats", "period=week&ofs=10");
     Operation defaultStats = classify("/project/stats", null);
 
@@ -94,7 +95,8 @@ final class CgitSemanticClassifierTest {
             "/project/tree/src",
             "h=main&id=abc&period=year&showmsg=1&dt=2&q=anything&qt=grep&ignorews=1");
     Operation commit = classify("/project/commit", "id=abc");
-    Operation commitWithIrrelevantParent = classify("/project/commit", "id=abc&id2=parent");
+    Operation commitWithIrrelevantParent =
+        classify("/project/commit", "id=abc&id2=parent");
 
     assertEquals(canonical, noisy);
     assertEquals(commit, commitWithIrrelevantParent);
@@ -109,9 +111,9 @@ final class CgitSemanticClassifierTest {
     Operation diffA = classify("/project/diff", "id=new&id2=old&context=5");
     Operation diffB = classify("/project/diff", "id=new&id2=old&context=10");
 
-    assertNotEquals(classifier.canonicalizer().canonicalize(treeA), classifier.canonicalizer().canonicalize(treeB));
-    assertNotEquals(classifier.canonicalizer().canonicalize(searchA), classifier.canonicalizer().canonicalize(searchB));
-    assertNotEquals(classifier.canonicalizer().canonicalize(diffA), classifier.canonicalizer().canonicalize(diffB));
+    assertNotEquals(canonicalize(treeA), canonicalize(treeB));
+    assertNotEquals(canonicalize(searchA), canonicalize(searchB));
+    assertNotEquals(canonicalize(diffA), canonicalize(diffB));
   }
 
   @Test
@@ -121,7 +123,7 @@ final class CgitSemanticClassifierTest {
     Operation allRefs = classify("/project/refs/other", "h=main");
 
     assertEquals(heads, nestedHeads);
-    assertNotEquals(classifier.canonicalizer().canonicalize(heads), classifier.canonicalizer().canonicalize(allRefs));
+    assertNotEquals(canonicalize(heads), canonicalize(allRefs));
   }
 
   @Test
@@ -136,36 +138,52 @@ final class CgitSemanticClassifierTest {
 
   @Test
   void rejectsCloneAdministrativeAndUnsupportedPages() {
-    assertTrue(classifier.classify("/project/HEAD", null).isEmpty());
-    assertTrue(classifier.classify("/project/info/refs", null).isEmpty());
-    assertTrue(classifier.classify("/project/objects/info/packs", null).isEmpty());
-    assertTrue(classifier.classify("/project/about", null).isEmpty());
-    assertTrue(classifier.classify("/project/not-a-page", null).isEmpty());
+    assertTrue(classifyOptional("/project/HEAD", null).isEmpty());
+    assertTrue(classifyOptional("/project/info/refs", null).isEmpty());
+    assertTrue(classifyOptional("/project/objects/info/packs", null).isEmpty());
+    assertTrue(classifyOptional("/project/about", null).isEmpty());
+    assertTrue(classifyOptional("/project/not-a-page", null).isEmpty());
   }
 
   @Test
   void rejectsMalformedRelevantOptions() {
-    assertTrue(classifier.classify("/project/log", "ofs=-1").isEmpty());
-    assertTrue(classifier.classify("/project/log", "qt=grep").isEmpty());
-    assertTrue(classifier.classify("/project/log", "q=value").isEmpty());
-    assertTrue(classifier.classify("/project/log", "qt=invalid&q=value").isEmpty());
-    assertTrue(classifier.classify("/project/log", "showmsg=2").isEmpty());
-    assertTrue(classifier.classify("/project/diff", "dt=3").isEmpty());
-    assertTrue(classifier.classify("/project/diff", "context=41").isEmpty());
-    assertTrue(classifier.classify("/project/diff", "dt=1&ss=1").isEmpty());
-    assertTrue(classifier.classify(null, "url=project%2").isEmpty());
+    assertTrue(classifyOptional("/project/log", "ofs=-1").isEmpty());
+    assertTrue(classifyOptional("/project/log", "qt=grep").isEmpty());
+    assertTrue(classifyOptional("/project/log", "q=value").isEmpty());
+    assertTrue(classifyOptional("/project/log", "qt=invalid&q=value").isEmpty());
+    assertTrue(classifyOptional("/project/log", "showmsg=2").isEmpty());
+    assertTrue(classifyOptional("/project/diff", "dt=3").isEmpty());
+    assertTrue(classifyOptional("/project/diff", "context=41").isEmpty());
+    assertTrue(classifyOptional("/project/diff", "dt=1&ss=1").isEmpty());
+    assertTrue(classifyOptional("/", "url=project%2").isEmpty());
   }
 
   @Test
   void requiresPathForSnapshotAndBlame() {
-    assertTrue(classifier.classify("/project/snapshot", "id=abc").isEmpty());
-    assertTrue(classifier.classify("/project/blame", "id=abc").isEmpty());
-    assertTrue(classifier.classify("/project/snapshot/project-main.tar.gz", "id=abc").isPresent());
-    assertTrue(classifier.classify("/project/blame/src/App.java", "id=abc").isPresent());
+    assertTrue(classifyOptional("/project/snapshot", "id=abc").isEmpty());
+    assertTrue(classifyOptional("/project/blame", "id=abc").isEmpty());
+    assertTrue(
+        classifyOptional("/project/snapshot/project-main.tar.gz", "id=abc").isPresent());
+    assertTrue(classifyOptional("/project/blame/src/App.java", "id=abc").isPresent());
   }
 
   @Test
-  void validatesRepositoryConfigurationAndOperationType() {
+  void classifiesThroughReleasedPolicyMatcherContract() {
+    assertTrue(classifier.classify(descriptor("POST", "/project/tree", null)).isEmpty());
+    assertTrue(
+        classifier
+            .classify(
+                new RequestDescriptor(
+                    "other",
+                    Map.of("method", List.of("GET"), "path", List.of("/project/tree")),
+                    TrustLevel.UNTRUSTED))
+            .isEmpty());
+    assertTrue(classifyOptional("/project/tree/%2Fescape", null).isEmpty());
+    assertTrue(classifyOptional("/project/tree/%2e%2e/file", null).isEmpty());
+  }
+
+  @Test
+  void validatesRepositoryConfigurationAndCanonicalizationDomain() {
     assertThrows(IllegalArgumentException.class, () -> new CgitSemanticClassifier(List.of()));
     assertThrows(
         IllegalArgumentException.class,
@@ -175,10 +193,28 @@ final class CgitSemanticClassifierTest {
         () -> new CgitSemanticClassifier(List.of("/project")));
 
     Operation unrelated = new Operation("other", Map.of("repository", List.of("project")));
-    assertThrows(IllegalArgumentException.class, () -> classifier.canonicalizer().canonicalize(unrelated));
+    assertThrows(IllegalArgumentException.class, () -> canonicalize(unrelated));
   }
 
-  private Operation classify(String pathInfo, String query) {
-    return classifier.classify(pathInfo, query).orElseThrow();
+  private Operation classify(String path, String query) {
+    return classifyOptional(path, query).orElseThrow();
+  }
+
+  private Optional<Operation> classifyOptional(String path, String query) {
+    return classifier.classify(descriptor("GET", path, query));
+  }
+
+  private String canonicalize(Operation operation) {
+    return classifier.canonicalizer().canonicalize(operation);
+  }
+
+  private static RequestDescriptor descriptor(String method, String path, String query) {
+    Map<String, List<String>> attributes = new LinkedHashMap<>();
+    attributes.put("method", List.of(method));
+    attributes.put("path", List.of(path));
+    if (query != null) {
+      attributes.put("query", List.of(query));
+    }
+    return new RequestDescriptor("http.request", attributes, TrustLevel.UNTRUSTED);
   }
 }

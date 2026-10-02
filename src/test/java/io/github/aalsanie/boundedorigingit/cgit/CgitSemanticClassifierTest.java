@@ -6,6 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.github.aalsanie.boundedorigin.api.Operation;
+import io.github.aalsanie.boundedorigin.api.RequestDescriptor;
+import io.github.aalsanie.boundedorigin.api.TrustLevel;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
@@ -29,8 +31,8 @@ final class CgitSemanticClassifierTest {
 
     assertEquals(virtual, url);
     assertEquals(virtual, legacy);
-    assertEquals(classifier.canonicalize(virtual), classifier.canonicalize(url));
-    assertEquals(classifier.canonicalize(virtual), classifier.canonicalize(legacy));
+    assertEquals(classifier.canonicalizer().canonicalize(virtual), classifier.canonicalizer().canonicalize(url));
+    assertEquals(classifier.canonicalizer().canonicalize(virtual), classifier.canonicalizer().canonicalize(legacy));
   }
 
   @Test
@@ -56,7 +58,9 @@ final class CgitSemanticClassifierTest {
   }
 
   @Test
-  void canonicalizesQueryOrderingAndEncoding() {
+  void canonicalizesPathEncodingAndQueryOrdering() {
+    Operation encodedPath = classify("/project/tree/src/%7Ename", "h=main&id=abc");
+    Operation plainPath = classify("/project/tree/src/~name", "h=main&id=abc");
     Operation first =
         classify("/project/log/src", "h=main&qt=grep&q=fix+bug&ofs=20&showmsg=1");
     Operation second =
@@ -64,8 +68,11 @@ final class CgitSemanticClassifierTest {
             "/project/log/src",
             "showmsg=1&q=fix%20bug&ofs=00020&qt=grep&h=main");
 
+    assertEquals(encodedPath, plainPath);
     assertEquals(first, second);
-    assertEquals(classifier.canonicalize(first), classifier.canonicalize(second));
+    assertEquals(
+        classifier.canonicalizer().canonicalize(first),
+        classifier.canonicalizer().canonicalize(second));
   }
 
   @Test
@@ -102,9 +109,9 @@ final class CgitSemanticClassifierTest {
     Operation diffA = classify("/project/diff", "id=new&id2=old&context=5");
     Operation diffB = classify("/project/diff", "id=new&id2=old&context=10");
 
-    assertNotEquals(classifier.canonicalize(treeA), classifier.canonicalize(treeB));
-    assertNotEquals(classifier.canonicalize(searchA), classifier.canonicalize(searchB));
-    assertNotEquals(classifier.canonicalize(diffA), classifier.canonicalize(diffB));
+    assertNotEquals(classifier.canonicalizer().canonicalize(treeA), classifier.canonicalizer().canonicalize(treeB));
+    assertNotEquals(classifier.canonicalizer().canonicalize(searchA), classifier.canonicalizer().canonicalize(searchB));
+    assertNotEquals(classifier.canonicalizer().canonicalize(diffA), classifier.canonicalizer().canonicalize(diffB));
   }
 
   @Test
@@ -114,17 +121,17 @@ final class CgitSemanticClassifierTest {
     Operation allRefs = classify("/project/refs/other", "h=main");
 
     assertEquals(heads, nestedHeads);
-    assertNotEquals(classifier.canonicalize(heads), classifier.canonicalize(allRefs));
+    assertNotEquals(classifier.canonicalizer().canonicalize(heads), classifier.canonicalizer().canonicalize(allRefs));
   }
 
   @Test
   void rejectsUnknownDuplicateAndMixedRouting() {
-    assertTrue(classifier.classify("/project/tree", "unknown=value").isEmpty());
-    assertTrue(classifier.classify("/project/tree", "h=main&h=other").isEmpty());
-    assertTrue(classifier.classify("/project/tree", "url=project%2Ftree").isEmpty());
-    assertTrue(classifier.classify(null, "url=project%2Ftree&r=project").isEmpty());
-    assertTrue(classifier.classify(null, "p=tree").isEmpty());
-    assertTrue(classifier.classify(null, "r=project&p=").isEmpty());
+    assertTrue(classifyOptional("/project/tree", "unknown=value").isEmpty());
+    assertTrue(classifyOptional("/project/tree", "h=main&h=other").isEmpty());
+    assertTrue(classifyOptional("/project/tree", "url=project%2Ftree").isEmpty());
+    assertTrue(classifyOptional("/", "url=project%2Ftree&r=project").isEmpty());
+    assertTrue(classifyOptional("/", "p=tree").isEmpty());
+    assertTrue(classifyOptional("/", "r=project&p=").isEmpty());
   }
 
   @Test
@@ -168,7 +175,7 @@ final class CgitSemanticClassifierTest {
         () -> new CgitSemanticClassifier(List.of("/project")));
 
     Operation unrelated = new Operation("other", Map.of("repository", List.of("project")));
-    assertThrows(IllegalArgumentException.class, () -> classifier.canonicalize(unrelated));
+    assertThrows(IllegalArgumentException.class, () -> classifier.canonicalizer().canonicalize(unrelated));
   }
 
   private Operation classify(String pathInfo, String query) {

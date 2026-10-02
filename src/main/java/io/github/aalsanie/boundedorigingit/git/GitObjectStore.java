@@ -69,6 +69,10 @@ public final class GitObjectStore {
     }
   }
 
+  GitHashAlgorithm hashAlgorithm() {
+    return hashAlgorithm;
+  }
+
   public boolean contains(GitObjectId objectId) {
     Path target = objectPath(objectId);
     return !Files.isSymbolicLink(target)

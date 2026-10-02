@@ -167,7 +167,11 @@ public final class CgitSemanticClassifier {
         return Optional.empty();
       }
       String repository = query.remove("r");
+      boolean hasPage = query.containsKey("p");
       String page = query.remove("p");
+      if (hasPage && (page == null || page.isBlank())) {
+        return Optional.empty();
+      }
       String path = normalizePath(query.remove("path"));
       if (!repositorySet.contains(repository)) {
         return Optional.empty();
@@ -266,11 +270,19 @@ public final class CgitSemanticClassifier {
           return Optional.empty();
         }
       }
-      case "commit", "diff" -> {
+      case "commit" -> {
         putIfPresent(dimensions, "path", route.path());
         if (!addText(dimensions, "head", query.get("h"))
             || !addText(dimensions, "oid", query.get("id"))
-            || route.page().equals("diff") && !addText(dimensions, "oid2", query.get("id2"))
+            || !addDiffOptions(dimensions, query)) {
+          return Optional.empty();
+        }
+      }
+      case "diff" -> {
+        putIfPresent(dimensions, "path", route.path());
+        if (!addText(dimensions, "head", query.get("h"))
+            || !addText(dimensions, "oid", query.get("id"))
+            || !addText(dimensions, "oid2", query.get("id2"))
             || !addDiffOptions(dimensions, query)) {
           return Optional.empty();
         }
@@ -337,10 +349,6 @@ public final class CgitSemanticClassifier {
 
   private static boolean addDiffOptions(
       Map<String, List<String>> dimensions, Map<String, String> query) {
-    if (!addText(dimensions, "oid2", query.get("id2"))) {
-      return false;
-    }
-
     String dt = query.get("dt");
     String ss = query.get("ss");
     if (dt != null && ss != null) {

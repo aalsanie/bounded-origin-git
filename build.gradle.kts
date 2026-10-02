@@ -43,7 +43,7 @@ tasks.withType<Test>().configureEach {
     useJUnitPlatform()
 }
 
-val clientTest by tasks.registering(Exec::class) {
+val clientTest = tasks.register<Exec>("clientTest") {
     commandLine(
         "node",
         "--test",

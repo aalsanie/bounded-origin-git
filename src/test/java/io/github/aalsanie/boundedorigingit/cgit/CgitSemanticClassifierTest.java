@@ -86,8 +86,11 @@ final class CgitSemanticClassifierTest {
         classify(
             "/project/tree/src",
             "h=main&id=abc&period=year&showmsg=1&dt=2&q=anything&qt=grep&ignorews=1");
+    Operation commit = classify("/project/commit", "id=abc");
+    Operation commitWithIrrelevantParent = classify("/project/commit", "id=abc&id2=parent");
 
     assertEquals(canonical, noisy);
+    assertEquals(commit, commitWithIrrelevantParent);
   }
 
   @Test
@@ -121,6 +124,7 @@ final class CgitSemanticClassifierTest {
     assertTrue(classifier.classify("/project/tree", "url=project%2Ftree").isEmpty());
     assertTrue(classifier.classify(null, "url=project%2Ftree&r=project").isEmpty());
     assertTrue(classifier.classify(null, "p=tree").isEmpty());
+    assertTrue(classifier.classify(null, "r=project&p=").isEmpty());
   }
 
   @Test

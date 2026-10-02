@@ -52,7 +52,7 @@ public final class GitRepositoryViewFactory {
       Files.createDirectories(alternates);
       Files.writeString(
           alternates.resolve("alternates"),
-          objectStore.objectDirectory().toString() + "\n",
+          objectStore.objectDirectory().toString().replace('\\\\', '/') + "\n",
           StandardCharsets.UTF_8,
           StandardOpenOption.CREATE_NEW);
 

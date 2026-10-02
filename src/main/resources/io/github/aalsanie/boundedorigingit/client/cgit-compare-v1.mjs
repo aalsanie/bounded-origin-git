@@ -457,28 +457,22 @@ async function compareEntry(path, oldEntry, newEntry, request, context) {
     };
   }
 
-  let oldText;
-  let newText;
-  try {
-    oldText = decodeText(oldBytes, context);
-    newText = decodeText(newBytes, context);
-  } catch (error) {
-    if (error instanceof TypeError) {
-      return {
-        path,
-        status,
-        oldMode,
-        newMode,
-        oldOid: oldEntry?.oid ?? null,
-        newOid: newEntry?.oid ?? null,
-        binary: true,
-        gitlink: false,
-        additions: 0,
-        deletions: 0,
-        detail: null
-      };
-    }
-    throw error;
+  const oldText = decodeText(oldBytes, context);
+  const newText = decodeText(newBytes, context);
+  if (oldText == null || newText == null) {
+    return {
+      path,
+      status,
+      oldMode,
+      newMode,
+      oldOid: oldEntry?.oid ?? null,
+      newOid: newEntry?.oid ?? null,
+      binary: true,
+      gitlink: false,
+      additions: 0,
+      deletions: 0,
+      detail: null
+    };
   }
 
   const diff = lineDiff(oldText.lines, newText.lines, request.ignoreWhitespace, context);
@@ -531,8 +525,8 @@ function decodeText(bytes, context) {
   let text;
   try {
     text = fatalDecoder.decode(bytes);
-  } catch (error) {
-    throw new TypeError("blob is not valid UTF-8", {cause: error});
+  } catch {
+    return null;
   }
 
   const endsWithNewline = bytes.length > 0 && bytes[bytes.length - 1] === 0x0a;
@@ -884,7 +878,7 @@ class Budget {
     this.objectBytes = 0;
     this.treeEntries = 0;
     this.files = 0;
-    this.lines = 0;
+    this.linesRead = 0;
     this.diffCellsUsed = 0;
     this.changes = 0;
     this.outputRows = 0;
@@ -917,8 +911,8 @@ class Budget {
   }
 
   lines(count) {
-    this.lines += count;
-    if (this.lines > this.limits.maxTotalLines) {
+    this.linesRead += count;
+    if (this.linesRead > this.limits.maxTotalLines) {
       fail("LIMIT_EXCEEDED", "Git text line budget exceeded");
     }
   }
@@ -953,7 +947,7 @@ class Budget {
       objectBytes: this.objectBytes,
       treeEntries: this.treeEntries,
       files: this.files,
-      lines: this.lines,
+      lines: this.linesRead,
       diffCells: this.diffCellsUsed,
       candidateChanges: this.changes,
       outputRows: this.outputRows

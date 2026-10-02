@@ -50,8 +50,9 @@ final class CgitRenderOnWriteCoordinatorTest {
 
       assertEquals(1, batch.snapshot().generation());
       assertEquals(1, fixture.renders().get());
-      assertTrue(
-          fixture.service().lookup(batch.snapshot(), operation()).isPresent());
+      Artifact stored =
+          fixture.service().lookup(batch.snapshot(), operation()).orElseThrow();
+      stored.body().close();
     }
   }
 

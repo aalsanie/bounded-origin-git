@@ -22,6 +22,8 @@ import java.time.Duration;
 import java.util.HexFormat;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -98,6 +100,50 @@ final class ProcessCgitRendererTest {
     assertThrows(
         MaterializationException.class,
         () -> fixture.renderer().render(fixture.snapshot(), pinned));
+  }
+
+  @Test
+  void doesNotReturnFromInterruptionUntilCgitProcessHasExited() throws Exception {
+    Fixture fixture = fixture(4096);
+    Path pidFile = temporaryDirectory.resolve("renderer.pid").toAbsolutePath();
+    Operation pinned =
+        fixture.namespace().pin(
+            new Operation(
+                "cgit-render",
+                Map.of(
+                    "repository", List.of("project"),
+                    "page", List.of("log"),
+                    "grep", List.of("grep"),
+                    "search", List.of("wait:" + pidFile))),
+            fixture.snapshot());
+
+    AtomicReference<Throwable> failure = new AtomicReference<>();
+    Thread worker =
+        Thread.ofVirtual()
+            .start(
+                () -> {
+                  try {
+                    fixture.renderer().render(fixture.snapshot(), pinned);
+                  } catch (Throwable throwable) {
+                    failure.set(throwable);
+                  }
+                });
+
+    long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(5);
+    while (!java.nio.file.Files.exists(pidFile) && System.nanoTime() - deadline < 0) {
+      Thread.sleep(10);
+    }
+    assertTrue(java.nio.file.Files.exists(pidFile));
+    long pid =
+        Long.parseLong(
+            java.nio.file.Files.readString(pidFile, StandardCharsets.US_ASCII).trim());
+
+    worker.interrupt();
+    worker.join(TimeUnit.SECONDS.toMillis(5));
+
+    assertTrue(!worker.isAlive());
+    assertTrue(failure.get() instanceof MaterializationException);
+    assertTrue(ProcessHandle.of(pid).map(handle -> !handle.isAlive()).orElse(true));
   }
 
   @Test

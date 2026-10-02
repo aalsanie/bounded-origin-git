@@ -96,6 +96,7 @@ public final class CgitArtifactService {
       RefGenerationSnapshot snapshot, Operation operation, OperationKey key)
       throws MaterializationException {
     Artifact generated = renderer.render(snapshot, operation);
+    MaterializationException failure = null;
     try {
       long policyLimit = policy.budget().orElseThrow().maxResultBytes();
       if (generated.contentLength() > policyLimit) {
@@ -106,11 +107,19 @@ public final class CgitArtifactService {
       } catch (IOException exception) {
         throw new MaterializationException("failed to persist cgit artifact", exception);
       }
+    } catch (MaterializationException exception) {
+      failure = exception;
+      throw exception;
     } finally {
       try {
         generated.body().close();
       } catch (IOException exception) {
-        throw new MaterializationException("failed to release generated cgit artifact", exception);
+        if (failure != null) {
+          failure.addSuppressed(exception);
+        } else {
+          throw new MaterializationException(
+              "failed to release generated cgit artifact", exception);
+        }
       }
     }
 

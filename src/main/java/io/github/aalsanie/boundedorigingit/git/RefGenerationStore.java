@@ -259,15 +259,17 @@ public final class RefGenerationStore {
 
   private RefGenerationSnapshot parse(byte[] bytes) throws RefGenerationIntegrityException {
     String text = decodeUtf8(bytes);
-    String marker = "checksum=";
-    int checksumStart = text.lastIndexOf(marker);
-    if (checksumStart <= 0 || text.indexOf(marker) != checksumStart || !text.endsWith("\n")) {
+    String checksumMarker = "\nchecksum=";
+    int checksumBoundary = text.lastIndexOf(checksumMarker);
+    if (checksumBoundary < 0
+        || text.indexOf(checksumMarker) != checksumBoundary
+        || !text.endsWith("\n")) {
       throw new RefGenerationIntegrityException("published ref generation checksum is malformed");
     }
 
-    String body = text.substring(0, checksumStart);
-    String checksumLine = text.substring(checksumStart, text.length() - 1);
-    String expectedChecksum = checksumLine.substring(marker.length());
+    String body = text.substring(0, checksumBoundary + 1);
+    String checksumLine = text.substring(checksumBoundary + 1, text.length() - 1);
+    String expectedChecksum = checksumLine.substring("checksum=".length());
     if (expectedChecksum.length() != 64 || !isHex(expectedChecksum)) {
       throw new RefGenerationIntegrityException("published ref generation checksum is malformed");
     }

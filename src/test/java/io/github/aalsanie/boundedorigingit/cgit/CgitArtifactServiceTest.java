@@ -17,6 +17,7 @@ import io.github.aalsanie.boundedorigin.api.TrustLevel;
 import io.github.aalsanie.boundedorigin.core.BoundedOriginExecutor;
 import io.github.aalsanie.boundedorigin.store.fs.FileSystemArtifactStore;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.time.Duration;
@@ -280,7 +281,7 @@ final class CgitArtifactServiceTest {
       CgitArtifactService service)
       implements AutoCloseable {
     @Override
-    public void close() throws Exception {
+    public void close() throws IOException {
       executor.close();
       store.close();
     }

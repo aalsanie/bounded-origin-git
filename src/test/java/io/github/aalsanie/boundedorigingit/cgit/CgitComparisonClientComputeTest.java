@@ -93,7 +93,7 @@ final class CgitComparisonClientComputeTest {
   void releasedGatewayReturnsDescriptionWithoutReachableOrigin() throws Exception {
     CgitComparisonClientCompute integration = integration();
     PolicyEngine engine = engine(integration);
-    InetAddress loopback = InetAddress.getLoopbackAddress();
+    InetAddress loopback = InetAddress.getByName("127.0.0.1");
     GatewayConfig config =
         GatewayConfig.defaults(
             new InetSocketAddress(loopback, 0),

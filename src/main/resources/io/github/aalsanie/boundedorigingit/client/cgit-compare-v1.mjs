@@ -202,9 +202,11 @@ function normalizePath(value) {
   if (path.startsWith("/") || path.includes("\\") || path.includes("\0")) {
     fail("INVALID_PATH", "path must be repository-relative");
   }
-  for (const segment of path.split("/")) {
-    if (segment === "." || segment === "..") {
-      fail("INVALID_PATH", "path must not contain dot traversal");
+  if (path) {
+    for (const segment of path.split("/")) {
+      if (segment === "" || segment === "." || segment === "..") {
+        fail("INVALID_PATH", "path must not contain empty or dot segments");
+      }
     }
   }
   return path;
@@ -522,6 +524,10 @@ async function readBlob(entry, context) {
 }
 
 function decodeText(bytes, context) {
+  if (bytes.length === 0) {
+    return {lines: [], endsWithNewline: false};
+  }
+
   let text;
   try {
     text = fatalDecoder.decode(bytes);
@@ -737,13 +743,16 @@ async function readVerified(oid, expectedType, context) {
   if (type !== "commit" && type !== "tree" && type !== "blob" && type !== "tag") {
     fail("UNSUPPORTED_OBJECT", "readObject returned an unsupported Git object type");
   }
-  const data = toBytes(supplied.data);
+  const data = new Uint8Array(toBytes(supplied.data));
   context.budget.object(data.length);
 
   const header = encoder.encode(`${type} ${data.length}\0`);
   const canonical = new Uint8Array(header.length + data.length);
   canonical.set(header);
   canonical.set(data, header.length);
+  if (!globalThis.crypto?.subtle) {
+    fail("UNSUPPORTED_RUNTIME", "Web Crypto is required for Git object verification");
+  }
   const digest = await globalThis.crypto.subtle.digest(context.algorithm, canonical);
   const actual = hex(new Uint8Array(digest));
   if (actual !== oid) {

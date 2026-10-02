@@ -330,7 +330,7 @@ final class RenderOnWriteIngestorTest {
         Map.of(
             "repository", List.of(event.repository()),
             "page", List.of(page),
-            "oid", List.of(event.after().orElse(event.before().orElseThrow()).hexadecimal())));
+            "oid", List.of(event.after().orElseGet(() -> event.before().orElseThrow()).hexadecimal())));
   }
 
   private static Operation operationWithNoise(String page, RepositoryUpdateEvent event) {
@@ -339,7 +339,7 @@ final class RenderOnWriteIngestorTest {
         Map.of(
             "repository", List.of(event.repository()),
             "page", List.of(page),
-            "oid", List.of(event.after().orElse(event.before().orElseThrow()).hexadecimal()),
+            "oid", List.of(event.after().orElseGet(() -> event.before().orElseThrow()).hexadecimal()),
             "noise", List.of("ignored")));
   }
 

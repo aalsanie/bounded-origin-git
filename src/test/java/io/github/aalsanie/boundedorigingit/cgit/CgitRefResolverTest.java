@@ -107,7 +107,7 @@ final class CgitRefResolverTest {
         "project", new GitRefName(ref), Optional.empty(), Optional.of(after));
   }
 
-  private static GitObjectId objectId(byte[] payload) {
+  private static GitObjectId objectId(byte[] payload) throws Exception {
     MessageDigest digest = MessageDigest.getInstance("SHA-1");
     digest.update(
         ("blob " + payload.length + "\0").getBytes(StandardCharsets.US_ASCII));

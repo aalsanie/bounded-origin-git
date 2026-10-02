@@ -44,10 +44,17 @@ tasks.withType<Test>().configureEach {
 }
 
 val clientTest by tasks.registering(Exec::class) {
-    commandLine("node", "--test", "src/test/js/cgit-compare-v1.test.mjs")
-    inputs.file(
-        "src/main/resources/io/github/aalsanie/boundedorigingit/client/cgit-compare-v1.mjs")
-    inputs.file("src/test/js/cgit-compare-v1.test.mjs")
+    commandLine(
+        "node",
+        "--test",
+        "src/test/js/cgit-compare-core.test.mjs",
+        "src/test/js/cgit-compare-safety.test.mjs",
+        "src/test/js/cgit-comparison-request.test.mjs")
+    inputs.files(
+        fileTree("src/main/resources/io/github/aalsanie/boundedorigingit/client") {
+            include("*.mjs")
+        })
+    inputs.files(fileTree("src/test/js") { include("*.mjs") })
 }
 
 tasks.named("check") {

@@ -196,8 +196,20 @@ public final class CgitArtifactNamespace {
 
   private static String requireRepository(String repository) {
     Objects.requireNonNull(repository, "repository");
-    if (repository.isBlank()) {
-      throw new IllegalArgumentException("repository must not be blank");
+    if (repository.isBlank()
+        || repository.length() > 2048
+        || repository.startsWith("/")
+        || repository.endsWith("/")
+        || repository.indexOf('?') >= 0
+        || repository.indexOf('&') >= 0
+        || repository.indexOf('=') >= 0) {
+      throw new IllegalArgumentException("invalid repository");
+    }
+    for (int index = 0; index < repository.length(); index++) {
+      char character = repository.charAt(index);
+      if (character < 0x21 || character == 0x7f) {
+        throw new IllegalArgumentException("invalid repository");
+      }
     }
     return repository;
   }

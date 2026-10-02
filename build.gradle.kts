@@ -1,3 +1,4 @@
+import org.gradle.api.tasks.Exec
 import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.api.tasks.testing.Test
 
@@ -40,4 +41,15 @@ tasks.withType<JavaCompile>().configureEach {
 
 tasks.withType<Test>().configureEach {
     useJUnitPlatform()
+}
+
+val clientTest by tasks.registering(Exec::class) {
+    commandLine("node", "--test", "src/test/js/cgit-compare-v1.test.mjs")
+    inputs.file(
+        "src/main/resources/io/github/aalsanie/boundedorigingit/client/cgit-compare-v1.mjs")
+    inputs.file("src/test/js/cgit-compare-v1.test.mjs")
+}
+
+tasks.named("check") {
+    dependsOn(clientTest)
 }

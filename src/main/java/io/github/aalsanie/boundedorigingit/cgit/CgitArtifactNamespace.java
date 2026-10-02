@@ -9,7 +9,6 @@ import io.github.aalsanie.boundedorigin.api.Operation;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -75,11 +74,7 @@ public final class CgitArtifactNamespace {
 
   public long generation(Operation operation) {
     validatePinned(operation);
-    try {
-      return Long.parseLong(single(operation, GENERATION));
-    } catch (NumberFormatException exception) {
-      throw new IllegalArgumentException("invalid pinned generation", exception);
-    }
+    return parsedGeneration(operation);
   }
 
   public String snapshotFingerprint(Operation operation) {
@@ -98,10 +93,10 @@ public final class CgitArtifactNamespace {
   public void validate(Operation operation, RefGenerationSnapshot snapshot) {
     Objects.requireNonNull(snapshot, "snapshot");
     validatePinned(operation);
-    if (generation(operation) != snapshot.generation()) {
+    if (parsedGeneration(operation) != snapshot.generation()) {
       throw new IllegalArgumentException("pinned generation does not match ref snapshot");
     }
-    if (!snapshotFingerprint(operation).equals(snapshotFingerprint(snapshot))) {
+    if (!single(operation, SNAPSHOT).equals(snapshotFingerprint(snapshot))) {
       throw new IllegalArgumentException("pinned ref snapshot fingerprint does not match");
     }
   }
@@ -113,13 +108,7 @@ public final class CgitArtifactNamespace {
 
   private void validatePinned(Operation operation) {
     validateOperation(operation);
-    long generation;
-    try {
-      generation = Long.parseLong(single(operation, GENERATION));
-    } catch (NumberFormatException exception) {
-      throw new IllegalArgumentException("invalid pinned generation", exception);
-    }
-    if (generation < 0) {
+    if (parsedGeneration(operation) < 0) {
       throw new IllegalArgumentException("invalid pinned generation");
     }
     String fingerprint = single(operation, SNAPSHOT);
@@ -138,6 +127,14 @@ public final class CgitArtifactNamespace {
     }
     if (!repository.equals(single(operation, "repository"))) {
       throw new IllegalArgumentException("operation targets a different repository");
+    }
+  }
+
+  private static long parsedGeneration(Operation operation) {
+    try {
+      return Long.parseLong(single(operation, GENERATION));
+    } catch (NumberFormatException exception) {
+      throw new IllegalArgumentException("invalid pinned generation", exception);
     }
   }
 
@@ -165,8 +162,7 @@ public final class CgitArtifactNamespace {
     }
 
     updateLong(digest, snapshot.refs().size());
-    for (Map.Entry<io.github.aalsanie.boundedorigingit.git.GitRefName, GitObjectId> entry :
-        snapshot.refs().entrySet()) {
+    for (Map.Entry<GitRefName, GitObjectId> entry : snapshot.refs().entrySet()) {
       updateString(digest, entry.getKey().value());
       updateString(digest, entry.getValue().algorithm().name());
       updateString(digest, entry.getValue().hexadecimal());

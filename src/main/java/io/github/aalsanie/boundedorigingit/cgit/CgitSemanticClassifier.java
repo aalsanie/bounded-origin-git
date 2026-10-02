@@ -88,8 +88,16 @@ public final class CgitSemanticClassifier implements PolicyMatcher {
 
   private static final Set<String> SEARCH_MODES = Set.of("grep", "author", "committer", "range");
 
-  private static final Canonicalizer CANONICALIZER =
+  private static final Canonicalizer BASE_CANONICALIZER =
       Canonicalizers.byDimensions(IDENTITY_DIMENSIONS);
+  private static final Canonicalizer CANONICALIZER =
+      operation -> {
+        Objects.requireNonNull(operation, "operation");
+        if (!OPERATION_TYPE.equals(operation.type())) {
+          throw new IllegalArgumentException("unexpected operation type " + operation.type());
+        }
+        return BASE_CANONICALIZER.canonicalize(operation);
+      };
 
   private final List<String> repositories;
   private final Set<String> repositorySet;

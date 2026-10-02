@@ -2,7 +2,7 @@ export const CLIENT_COMPARISON_TYPE = "bounded-origin-git.compare";
 export const CLIENT_COMPARISON_VERSION = "1";
 
 const encoder = new TextEncoder();
-const fatalDecoder = new TextDecoder("utf-8", {fatal: true});
+const fatalDecoder = new TextDecoder("utf-8", {fatal: true, ignoreBOM: true});
 
 const HARD_LIMITS = Object.freeze({
   maxObjects: 8192,
@@ -67,8 +67,7 @@ export async function compareGit(options) {
 
   const oldFiles = new Map();
   const newFiles = new Map();
-  await collectTree(oldTree, "", request.path, oldFiles, context);
-  await collectTree(newTree, "", request.path, newFiles, context);
+  await collectChangedTrees(oldTree, newTree, "", request.path, oldFiles, newFiles, context);
 
   const paths = [...new Set([...oldFiles.keys(), ...newFiles.keys()])];
   paths.sort(compareUtf8);
@@ -216,9 +215,10 @@ async function resolveCommitTree(startOid, context) {
   let oid = startOid;
   const seen = new Set();
   for (let depth = 0; depth <= context.budget.limits.maxTagDepth; depth++) {
-    if (!seen.add(oid)) {
+    if (seen.has(oid)) {
       fail("INVALID_GIT_OBJECT", "tag chain contains a cycle");
     }
+    seen.add(oid);
     const object = await readVerified(oid, null, context);
     if (object.type === "commit") {
       return commitTreeOid(object.data, context.oidLength);
@@ -279,32 +279,56 @@ function startsWith(bytes, start, end, prefix) {
   return true;
 }
 
-async function collectTree(treeOid, parent, filter, files, context) {
-  const object = await readVerified(treeOid, "tree", context);
-  const entries = parseTree(object.data, context);
-
-  for (const entry of entries) {
-    const path = parent ? parent + "/" + entry.name : entry.name;
+async function collectChangedTrees(oldOid, newOid, parent, filter, oldFiles, newFiles, context) {
+  checkAborted(context.signal);
+  if (oldOid === newOid) {
+    return;
+  }
+  const oldEntries = await treeEntries(oldOid, context);
+  const newEntries = await treeEntries(newOid, context);
+  const names = new Set([...oldEntries.keys(), ...newEntries.keys()]);
+  for (const name of names) {
+    const oldEntry = oldEntries.get(name);
+    const newEntry = newEntries.get(name);
+    if (oldEntry && newEntry && oldEntry.oid === newEntry.oid && oldEntry.mode === newEntry.mode) {
+      continue;
+    }
+    const path = parent ? parent + "/" + name : name;
     if (encoder.encode(path).length > context.budget.limits.maxPathBytes) {
       fail("LIMIT_EXCEEDED", "Git path exceeds configured byte limit");
     }
 
-    if (entry.kind === "tree") {
+    const oldTree = oldEntry?.kind === "tree" ? oldEntry.oid : null;
+    const newTree = newEntry?.kind === "tree" ? newEntry.oid : null;
+    if (oldTree || newTree) {
       if (treeRelevant(path, filter)) {
-        await collectTree(entry.oid, path, filter, files, context);
+        await collectChangedTrees(oldTree, newTree, path, filter, oldFiles, newFiles, context);
       }
-      continue;
     }
-
-    if (!fileRelevant(path, filter)) {
-      continue;
+    if (fileRelevant(path, filter)) {
+      rememberFile(path, oldEntry, oldFiles, context);
+      rememberFile(path, newEntry, newFiles, context);
     }
-    context.budget.file();
-    if (files.has(path)) {
-      fail("INVALID_GIT_OBJECT", "tree contains duplicate repository path");
-    }
-    files.set(path, entry);
   }
+}
+
+async function treeEntries(oid, context) {
+  if (oid == null) {
+    return new Map();
+  }
+  const object = await readVerified(oid, "tree", context);
+  return new Map(parseTree(object.data, context).map(entry => [entry.name, entry]));
+}
+
+function rememberFile(path, entry, files, context) {
+  if (!entry || entry.kind === "tree") {
+    return;
+  }
+  context.budget.file();
+  if (files.has(path)) {
+    fail("INVALID_GIT_OBJECT", "tree contains duplicate repository path");
+  }
+  files.set(path, entry);
 }
 
 function parseTree(bytes, context) {
@@ -344,9 +368,10 @@ function parseTree(bytes, context) {
     if (name === "." || name === ".." || name.includes("/") || name.includes("\0")) {
       fail("INVALID_GIT_OBJECT", "tree entry name is invalid");
     }
-    if (!seenNames.add(name)) {
+    if (seenNames.has(name)) {
       fail("INVALID_GIT_OBJECT", "tree contains duplicate entry names");
     }
+    seenNames.add(name);
 
     entries.push({
       name,
@@ -475,7 +500,7 @@ async function compareEntry(path, oldEntry, newEntry, request, context) {
     };
   }
 
-  const diff = lineDiff(oldText.lines, newText.lines, request.ignoreWhitespace, context);
+  const diff = lineDiff(oldText, newText, request.ignoreWhitespace, context);
   if (diff.additions === 0 && diff.deletions === 0 && !modeChanged && oldEntry && newEntry) {
     return null;
   }
@@ -541,21 +566,36 @@ function decodeText(bytes, context) {
   return {lines, endsWithNewline};
 }
 
-function lineDiff(oldLines, newLines, ignoreWhitespace, context) {
-  const oldLength = oldLines.length;
-  const newLength = newLines.length;
+function lineDiff(oldText, newText, ignoreWhitespace, context) {
+  const oldLines = oldText.lines;
+  const newLines = newText.lines;
+  const keys = text => text.lines.map((line, index) => ignoreWhitespace
+      ? normalizeWhitespace(line)
+      : line + (index < text.lines.length - 1 || text.endsWithNewline ? "\n" : ""));
+  const normalizedOld = keys(oldText);
+  const normalizedNew = keys(newText);
+  let prefix = 0;
+  while (prefix < oldLines.length && prefix < newLines.length
+      && normalizedOld[prefix] === normalizedNew[prefix]) {
+    prefix++;
+  }
+  let suffix = 0;
+  while (suffix < oldLines.length - prefix && suffix < newLines.length - prefix
+      && normalizedOld[oldLines.length - suffix - 1] === normalizedNew[newLines.length - suffix - 1]) {
+    suffix++;
+  }
+  const oldLength = oldLines.length - prefix - suffix;
+  const newLength = newLines.length - prefix - suffix;
   const cells = (oldLength + 1) * (newLength + 1);
   context.budget.diffCells(cells);
 
   const width = newLength + 1;
   const matrix = new Uint32Array(cells);
-  const normalizedOld = ignoreWhitespace ? oldLines.map(normalizeWhitespace) : oldLines;
-  const normalizedNew = ignoreWhitespace ? newLines.map(normalizeWhitespace) : newLines;
 
   for (let oldIndex = oldLength - 1; oldIndex >= 0; oldIndex--) {
     for (let newIndex = newLength - 1; newIndex >= 0; newIndex--) {
       const index = oldIndex * width + newIndex;
-      if (normalizedOld[oldIndex] === normalizedNew[newIndex]) {
+      if (normalizedOld[prefix + oldIndex] === normalizedNew[prefix + newIndex]) {
         matrix[index] = 1 + matrix[(oldIndex + 1) * width + newIndex + 1];
       } else {
         matrix[index] = Math.max(
@@ -566,6 +606,23 @@ function lineDiff(oldLines, newLines, ignoreWhitespace, context) {
   }
 
   const edits = [];
+  const edit = (kind, oldPosition, newPosition) => {
+    const noNewline = kind === "add"
+        ? newPosition === newLines.length - 1 && !newText.endsWithNewline
+        : oldPosition === oldLines.length - 1 && !oldText.endsWithNewline;
+    return {
+      kind,
+      text: kind === "add" ? newLines[newPosition] : oldLines[oldPosition],
+      oldLine: kind === "add" ? null : oldPosition + 1,
+      newLine: kind === "delete" ? null : newPosition + 1,
+      oldPosition,
+      newPosition,
+      ...(noNewline ? {noNewline: true} : {})
+    };
+  };
+  for (let index = 0; index < prefix; index++) {
+    edits.push(edit("context", index, index));
+  }
   let additions = 0;
   let deletions = 0;
   let oldIndex = 0;
@@ -574,15 +631,8 @@ function lineDiff(oldLines, newLines, ignoreWhitespace, context) {
   while (oldIndex < oldLength || newIndex < newLength) {
     if (oldIndex < oldLength
         && newIndex < newLength
-        && normalizedOld[oldIndex] === normalizedNew[newIndex]) {
-      edits.push({
-        kind: "context",
-        text: oldLines[oldIndex],
-        oldLine: oldIndex + 1,
-        newLine: newIndex + 1,
-        oldPosition: oldIndex,
-        newPosition: newIndex
-      });
+        && normalizedOld[prefix + oldIndex] === normalizedNew[prefix + newIndex]) {
+      edits.push(edit("context", prefix + oldIndex, prefix + newIndex));
       oldIndex++;
       newIndex++;
       continue;
@@ -594,28 +644,18 @@ function lineDiff(oldLines, newLines, ignoreWhitespace, context) {
         newIndex < newLength ? matrix[oldIndex * width + newIndex + 1] : -1;
 
     if (oldIndex < oldLength && (newIndex >= newLength || deleteScore >= addScore)) {
-      edits.push({
-        kind: "delete",
-        text: oldLines[oldIndex],
-        oldLine: oldIndex + 1,
-        newLine: null,
-        oldPosition: oldIndex,
-        newPosition: newIndex
-      });
+      edits.push(edit("delete", prefix + oldIndex, prefix + newIndex));
       deletions++;
       oldIndex++;
     } else {
-      edits.push({
-        kind: "add",
-        text: newLines[newIndex],
-        oldLine: null,
-        newLine: newIndex + 1,
-        oldPosition: oldIndex,
-        newPosition: newIndex
-      });
+      edits.push(edit("add", prefix + oldIndex, prefix + newIndex));
       additions++;
       newIndex++;
     }
+  }
+
+  for (let index = 0; index < suffix; index++) {
+    edits.push(edit("context", prefix + oldLength + index, prefix + newLength + index));
   }
 
   return {edits, additions, deletions};
@@ -632,16 +672,19 @@ function unifiedDetail(edits, contextLines, context) {
     hunks: regions.map(([start, end]) => {
       const lines = edits.slice(start, end);
       context.budget.output(lines.length);
+      const oldCount = lines.filter(line => line.kind !== "add").length;
+      const newCount = lines.filter(line => line.kind !== "delete").length;
       return {
-        oldStart: edits[start]?.oldPosition + 1 ?? 1,
-        oldCount: lines.filter(line => line.kind !== "add").length,
-        newStart: edits[start]?.newPosition + 1 ?? 1,
-        newCount: lines.filter(line => line.kind !== "delete").length,
+        oldStart: edits[start].oldPosition + (oldCount === 0 ? 0 : 1),
+        oldCount,
+        newStart: edits[start].newPosition + (newCount === 0 ? 0 : 1),
+        newCount,
         lines: lines.map(line => ({
           kind: line.kind,
           text: line.text,
           oldLine: line.oldLine,
-          newLine: line.newLine
+          newLine: line.newLine,
+          ...(line.noNewline ? {noNewline: true} : {})
         }))
       };
     })
@@ -661,8 +704,8 @@ function sideBySideDetail(edits, contextLines, context) {
         const line = source[index];
         rows.push({
           kind: "context",
-          left: {line: line.oldLine, text: line.text},
-          right: {line: line.newLine, text: line.text}
+          left: {line: line.oldLine, text: line.text, ...(line.noNewline ? {noNewline: true} : {})},
+          right: {line: line.newLine, text: line.text, ...(line.noNewline ? {noNewline: true} : {})}
         });
         index++;
         continue;
@@ -684,8 +727,8 @@ function sideBySideDetail(edits, contextLines, context) {
         const right = adds[row];
         rows.push({
           kind: "change",
-          left: left ? {line: left.oldLine, text: left.text} : null,
-          right: right ? {line: right.newLine, text: right.text} : null
+          left: left ? {line: left.oldLine, text: left.text, ...(left.noNewline ? {noNewline: true} : {})} : null,
+          right: right ? {line: right.newLine, text: right.text, ...(right.noNewline ? {noNewline: true} : {})} : null
         });
       }
     }
@@ -728,7 +771,13 @@ async function readVerified(oid, expectedType, context) {
     return cached;
   }
 
-  const supplied = await context.readObject(oid, {signal: context.signal});
+  if (context.budget.objects >= context.budget.limits.maxObjects) {
+    fail("LIMIT_EXCEEDED", "Git object read budget exceeded");
+  }
+  const maxBytes = Math.min(
+      context.budget.limits.maxObjectBytes,
+      context.budget.limits.maxTotalObjectBytes - context.budget.objectBytes);
+  const supplied = await context.readObject(oid, {signal: context.signal, maxBytes});
   checkAborted(context.signal);
   if (!supplied || typeof supplied !== "object") {
     fail("INVALID_OBJECT_READER", "readObject must return an object");
@@ -737,8 +786,9 @@ async function readVerified(oid, expectedType, context) {
   if (type !== "commit" && type !== "tree" && type !== "blob" && type !== "tag") {
     fail("UNSUPPORTED_OBJECT", "readObject returned an unsupported Git object type");
   }
-  const data = new Uint8Array(toBytes(supplied.data));
-  context.budget.object(data.length);
+  const bytes = toBytes(supplied.data);
+  context.budget.object(bytes.length);
+  const data = new Uint8Array(bytes);
 
   const header = encoder.encode(`${type} ${data.length}\0`);
   const canonical = new Uint8Array(header.length + data.length);

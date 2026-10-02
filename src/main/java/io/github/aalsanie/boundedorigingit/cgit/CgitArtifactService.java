@@ -1,6 +1,5 @@
 package io.github.aalsanie.boundedorigingit.cgit;
 
-import io.github.aalsanie.boundedorigingit.git.RefGenerationSnapshot;
 import io.github.aalsanie.boundedorigin.api.Artifact;
 import io.github.aalsanie.boundedorigin.api.ArtifactStore;
 import io.github.aalsanie.boundedorigin.api.Budget;
@@ -10,8 +9,8 @@ import io.github.aalsanie.boundedorigin.api.OperationKey;
 import io.github.aalsanie.boundedorigin.api.OriginDecision;
 import io.github.aalsanie.boundedorigin.api.OriginPolicy;
 import io.github.aalsanie.boundedorigin.api.TrustLevel;
-import io.github.aalsanie.boundedorigin.core.BoundedOriginExecutor;
 import io.github.aalsanie.boundedorigin.core.OriginExecution;
+import io.github.aalsanie.boundedorigingit.git.RefGenerationSnapshot;
 import java.io.IOException;
 import java.util.Objects;
 import java.util.Optional;
@@ -21,14 +20,14 @@ import java.util.concurrent.CompletionStage;
 
 public final class CgitArtifactService {
   private final CgitArtifactNamespace namespace;
-  private final BoundedOriginExecutor executor;
+  private final CgitRenderExecutor executor;
   private final ArtifactStore artifactStore;
   private final CgitRenderer renderer;
   private final OriginPolicy policy;
 
   public CgitArtifactService(
       CgitArtifactNamespace namespace,
-      BoundedOriginExecutor executor,
+      CgitRenderExecutor executor,
       ArtifactStore artifactStore,
       CgitRenderer renderer,
       String policyId,
@@ -101,12 +100,20 @@ public final class CgitArtifactService {
   private Artifact persist(
       RefGenerationSnapshot snapshot, Operation operation, OperationKey key)
       throws MaterializationException {
+    try {
+      Optional<Artifact> stored = artifactStore.get(key);
+      if (stored.isPresent()) {
+        return stored.orElseThrow();
+      }
+    } catch (IOException exception) {
+      throw new MaterializationException("failed to read cgit artifact", exception);
+    }
     Artifact generated = renderer.render(snapshot, operation);
     MaterializationException failure = null;
     try {
-      long policyLimit = policy.budget().orElseThrow().maxResultBytes();
-      if (generated.contentLength() > policyLimit) {
-        throw new MaterializationException("cgit artifact exceeds policy result limit");
+      long resultLimit = executor.maxResultBytes(policy.budget().orElseThrow());
+      if (generated.contentLength() > resultLimit) {
+        throw new MaterializationException("cgit artifact exceeds effective result limit");
       }
       try {
         artifactStore.put(key, generated);

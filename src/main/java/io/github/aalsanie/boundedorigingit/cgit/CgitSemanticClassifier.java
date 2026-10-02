@@ -5,7 +5,10 @@ import io.github.aalsanie.boundedorigin.api.Canonicalizers;
 import io.github.aalsanie.boundedorigin.api.Operation;
 import io.github.aalsanie.boundedorigin.api.PolicyMatcher;
 import io.github.aalsanie.boundedorigin.api.RequestDescriptor;
-import java.net.URLDecoder;
+import java.io.ByteArrayOutputStream;
+import java.nio.ByteBuffer;
+import java.nio.charset.CharacterCodingException;
+import java.nio.charset.CodingErrorAction;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Comparator;
@@ -249,7 +252,7 @@ public final class CgitSemanticClassifier implements PolicyMatcher {
     String normalizedPage = page == null || page.isBlank() ? "summary" : page;
     if (containsControl(normalizedPage)
         || normalizedPage.length() > MAX_COMPONENT_LENGTH
-        || path != null && (path.length() > MAX_PATH_LENGTH || containsControl(path))) {
+        || path != null && (path.length() > MAX_PATH_LENGTH || !validRepositoryPath(path))) {
       return Optional.empty();
     }
     return Optional.of(new Route(repository, normalizedPage, path));
@@ -525,8 +528,8 @@ public final class CgitSemanticClassifier implements PolicyMatcher {
         int separator = parameter.indexOf('=');
         String rawName = separator < 0 ? parameter : parameter.substring(0, separator);
         String rawValue = separator < 0 ? "" : parameter.substring(separator + 1);
-        String name = URLDecoder.decode(rawName, StandardCharsets.UTF_8);
-        String value = URLDecoder.decode(rawValue, StandardCharsets.UTF_8);
+        String name = decodeComponent(rawName, true);
+        String value = decodeComponent(rawValue, true);
 
         if (name.isBlank()
             || name.length() > MAX_COMPONENT_LENGTH
@@ -549,22 +552,20 @@ public final class CgitSemanticClassifier implements PolicyMatcher {
       return Optional.of(path);
     }
 
-    StringBuilder normalized = new StringBuilder(path.length());
     for (int index = 0; index < path.length(); index++) {
       char character = path.charAt(index);
       if (character != '%') {
         if (character < 0x21 || character > 0x7e || character == '\\' || character == '#') {
           return Optional.empty();
         }
-        normalized.append(character);
         continue;
       }
 
       if (index + 2 >= path.length()) {
         return Optional.empty();
       }
-      int high = Character.digit(path.charAt(index + 1), 16);
-      int low = Character.digit(path.charAt(index + 2), 16);
+      int high = hexDigit(path.charAt(index + 1));
+      int low = hexDigit(path.charAt(index + 2));
       if (high < 0 || low < 0) {
         return Optional.empty();
       }
@@ -572,32 +573,86 @@ public final class CgitSemanticClassifier implements PolicyMatcher {
       if (decoded == '/' || decoded == '\\' || decoded == 0) {
         return Optional.empty();
       }
-      if (isUnreserved(decoded)) {
-        normalized.append(decoded);
-      } else {
-        normalized.append('%');
-        normalized.append(Character.toUpperCase(path.charAt(index + 1)));
-        normalized.append(Character.toUpperCase(path.charAt(index + 2)));
-      }
       index += 2;
     }
 
-    for (String segment : normalized.toString().split("/", -1)) {
+    String normalized;
+    try {
+      normalized = decodeComponent(path, false);
+    } catch (IllegalArgumentException invalidEncoding) {
+      return Optional.empty();
+    }
+    if (containsControl(normalized)) {
+      return Optional.empty();
+    }
+    for (String segment : normalized.split("/", -1)) {
       if (".".equals(segment) || "..".equals(segment)) {
         return Optional.empty();
       }
     }
-    return Optional.of(normalized.toString());
+    return Optional.of(normalized);
   }
 
-  private static boolean isUnreserved(char character) {
-    return character >= 'a' && character <= 'z'
-        || character >= 'A' && character <= 'Z'
-        || character >= '0' && character <= '9'
-        || character == '-'
-        || character == '.'
-        || character == '_'
-        || character == '~';
+  private static String decodeComponent(String value, boolean query) {
+    ByteArrayOutputStream bytes = new ByteArrayOutputStream(value.length());
+    for (int index = 0; index < value.length(); index++) {
+      char character = value.charAt(index);
+      if (character == '%') {
+        if (index + 2 >= value.length()) {
+          throw new IllegalArgumentException("incomplete percent escape");
+        }
+        int high = hexDigit(value.charAt(index + 1));
+        int low = hexDigit(value.charAt(index + 2));
+        if (high < 0 || low < 0) {
+          throw new IllegalArgumentException("invalid percent escape");
+        }
+        bytes.write((high << 4) | low);
+        index += 2;
+      } else if (character == '+' && query) {
+        bytes.write(' ');
+      } else if (character < 128) {
+        bytes.write(character);
+      } else {
+        int codePoint = value.codePointAt(index);
+        if (Character.isSurrogate(character) && Character.charCount(codePoint) != 2) {
+          throw new IllegalArgumentException("invalid Unicode scalar");
+        }
+        bytes.writeBytes(new String(Character.toChars(codePoint)).getBytes(StandardCharsets.UTF_8));
+        index += Character.charCount(codePoint) - 1;
+      }
+    }
+    try {
+      return StandardCharsets.UTF_8
+          .newDecoder()
+          .onMalformedInput(CodingErrorAction.REPORT)
+          .onUnmappableCharacter(CodingErrorAction.REPORT)
+          .decode(ByteBuffer.wrap(bytes.toByteArray()))
+          .toString();
+    } catch (CharacterCodingException exception) {
+      throw new IllegalArgumentException("invalid UTF-8", exception);
+    }
+  }
+
+  private static int hexDigit(char value) {
+    if (value >= '0' && value <= '9') {
+      return value - '0';
+    }
+    if (value >= 'a' && value <= 'f') {
+      return value - 'a' + 10;
+    }
+    return value >= 'A' && value <= 'F' ? value - 'A' + 10 : -1;
+  }
+
+  private static boolean validRepositoryPath(String path) {
+    if (path.startsWith("/") || path.indexOf('\\') >= 0 || containsControl(path)) {
+      return false;
+    }
+    for (String segment : path.split("/", -1)) {
+      if (segment.isEmpty() || segment.equals(".") || segment.equals("..")) {
+        return false;
+      }
+    }
+    return true;
   }
 
   private static String normalizePath(String path) {

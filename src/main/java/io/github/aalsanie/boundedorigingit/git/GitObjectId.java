@@ -12,7 +12,10 @@ public record GitObjectId(GitHashAlgorithm algorithm, String hexadecimal) {
           "object id must contain " + algorithm.hexadecimalLength() + " hexadecimal characters");
     }
     for (int index = 0; index < hexadecimal.length(); index++) {
-      if (Character.digit(hexadecimal.charAt(index), 16) < 0) {
+      char value = hexadecimal.charAt(index);
+      if (!(value >= '0' && value <= '9'
+          || value >= 'a' && value <= 'f'
+          || value >= 'A' && value <= 'F')) {
         throw new IllegalArgumentException("object id must contain only hexadecimal characters");
       }
     }

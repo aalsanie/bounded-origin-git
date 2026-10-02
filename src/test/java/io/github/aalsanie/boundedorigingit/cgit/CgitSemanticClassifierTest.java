@@ -76,6 +76,33 @@ final class CgitSemanticClassifierTest {
   }
 
   @Test
+  void decodesUtf8AndReservedFilenameCharactersExactlyOnceAcrossRoutes() {
+    String encoded = "src/A%20B%2B%25%23%C3%A9.java";
+    Operation virtual = classify("/project/tree/" + encoded, "id=abc");
+    Operation legacy = classify("/", "r=project&p=tree&path=" + encoded + "&id=abc");
+    Operation url = classify("/", "url=project/tree/" + encoded + "&id=abc");
+    assertEquals(List.of("src/A B+%#\u00e9.java"), virtual.dimensions().get("path"));
+    assertEquals(virtual, legacy);
+    assertEquals(virtual, url);
+    assertEquals(
+        List.of("src/A%20B.java"),
+        classify("/project/tree/src/A%2520B.java", null).dimensions().get("path"));
+    assertEquals(
+        List.of("src/A+B.java"),
+        classify("/project/tree/src/A+B.java", null).dimensions().get("path"));
+  }
+
+  @Test
+  void rejectsMalformedUtf8AndUnsafePathsAcrossRoutingForms() {
+    assertTrue(classifyOptional("/project/tree/%C3%28", null).isEmpty());
+    assertTrue(classifyOptional("/", "r=project&p=tree&path=%C3%28").isEmpty());
+    assertTrue(classifyOptional("/project/log", "qt=grep&q=%C0%AF").isEmpty());
+    assertTrue(classifyOptional("/", "r=project&p=tree&path=../secret").isEmpty());
+    assertTrue(classifyOptional("/", "url=project/tree/%2e%2e/secret").isEmpty());
+    assertTrue(classifyOptional("/project/tree/a%00b", null).isEmpty());
+  }
+
+  @Test
   void canonicalizesCgitAliasesAndDefaults() {
     Operation sideBySide = classify("/project/diff/src", "id=new&id2=old&ss=1");
     Operation explicitType =

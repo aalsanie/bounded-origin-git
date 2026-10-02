@@ -19,8 +19,12 @@ public final class CgitProcessFixture {
             && config.contains("repo.path=");
 
     String search = queryValue(query, "q");
-    if (search != null && search.startsWith("wait:")) {
-      Path pidFile = Path.of(search.substring("wait:".length()));
+    if (search != null && (search.startsWith("wait:") || search.startsWith("partial-wait:"))) {
+      if (search.startsWith("partial-wait:")) {
+        System.out.print("Content-Type: text/plain\r\n\r\npartial response");
+        System.out.flush();
+      }
+      Path pidFile = Path.of(search.substring(search.indexOf(':') + 1));
       Files.writeString(
           pidFile,
           Long.toString(ProcessHandle.current().pid()),

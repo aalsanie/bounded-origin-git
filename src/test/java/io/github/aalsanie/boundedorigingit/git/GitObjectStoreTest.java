@@ -174,6 +174,9 @@ final class GitObjectStoreTest {
         IllegalArgumentException.class,
         () ->
             new GitObjectId(GitHashAlgorithm.SHA1, "not-an-object-id"));
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> new GitObjectId(GitHashAlgorithm.SHA1, "\uff21".repeat(40)));
   }
 
   @Test
@@ -186,7 +189,9 @@ final class GitObjectStoreTest {
     store.ingest(
         HELLO_SHA1, GitObjectType.BLOB, HELLO.length, new ByteArrayInputStream(HELLO));
 
-    assertEquals("blob", runGit("--git-dir=" + repository, "cat-file", "-t", HELLO_SHA1.hexadecimal()).trim());
+    assertEquals(
+        "blob",
+        runGit("--git-dir=" + repository, "cat-file", "-t", HELLO_SHA1.hexadecimal()).trim());
     assertArrayEquals(
         HELLO,
         runGitBytes("--git-dir=" + repository, "cat-file", "-p", HELLO_SHA1.hexadecimal()));

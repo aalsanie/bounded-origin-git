@@ -2,8 +2,12 @@ package io.github.aalsanie.boundedorigingit.cgit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import io.github.aalsanie.boundedorigin.api.Artifact;
+import io.github.aalsanie.boundedorigin.api.Budget;
+import io.github.aalsanie.boundedorigin.api.Operation;
+import io.github.aalsanie.boundedorigin.api.TrustLevel;
+import io.github.aalsanie.boundedorigin.store.fs.FileSystemArtifactStore;
 import io.github.aalsanie.boundedorigingit.git.GitHashAlgorithm;
 import io.github.aalsanie.boundedorigingit.git.GitObjectId;
 import io.github.aalsanie.boundedorigingit.git.GitObjectStore;
@@ -11,12 +15,6 @@ import io.github.aalsanie.boundedorigingit.git.GitObjectType;
 import io.github.aalsanie.boundedorigingit.git.GitRefName;
 import io.github.aalsanie.boundedorigingit.git.RefGenerationStore;
 import io.github.aalsanie.boundedorigingit.git.RepositoryUpdateEvent;
-import io.github.aalsanie.boundedorigin.api.Artifact;
-import io.github.aalsanie.boundedorigin.api.Budget;
-import io.github.aalsanie.boundedorigin.api.Operation;
-import io.github.aalsanie.boundedorigin.api.TrustLevel;
-import io.github.aalsanie.boundedorigin.core.BoundedOriginExecutor;
-import io.github.aalsanie.boundedorigin.store.fs.FileSystemArtifactStore;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -125,8 +123,7 @@ final class CgitRenderOnWriteCoordinatorTest {
             objects,
             16,
             8);
-    BoundedOriginExecutor executor =
-        new BoundedOriginExecutor(BUDGET, Duration.ofMillis(10), 32);
+    CgitRenderExecutor executor = new CgitRenderExecutor(BUDGET, Duration.ofMillis(10), 32);
     FileSystemArtifactStore store =
         new FileSystemArtifactStore(
             temporaryDirectory.resolve("artifacts-" + System.nanoTime()),
@@ -184,7 +181,7 @@ final class CgitRenderOnWriteCoordinatorTest {
   private record Fixture(
       GitObjectStore objects,
       RefGenerationStore refs,
-      BoundedOriginExecutor executor,
+      CgitRenderExecutor executor,
       FileSystemArtifactStore store,
       CgitArtifactService service,
       CgitRenderOnWriteCoordinator coordinator,

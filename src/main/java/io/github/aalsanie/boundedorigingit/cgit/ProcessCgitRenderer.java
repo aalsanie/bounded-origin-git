@@ -1,13 +1,13 @@
 package io.github.aalsanie.boundedorigingit.cgit;
 
-import io.github.aalsanie.boundedorigingit.git.GitObjectStore;
-import io.github.aalsanie.boundedorigingit.git.GitRepositoryView;
-import io.github.aalsanie.boundedorigingit.git.GitRepositoryViewFactory;
-import io.github.aalsanie.boundedorigingit.git.RefGenerationSnapshot;
 import io.github.aalsanie.boundedorigin.api.Artifact;
 import io.github.aalsanie.boundedorigin.api.ArtifactBody;
 import io.github.aalsanie.boundedorigin.api.MaterializationException;
 import io.github.aalsanie.boundedorigin.api.Operation;
+import io.github.aalsanie.boundedorigingit.git.GitObjectStore;
+import io.github.aalsanie.boundedorigingit.git.GitRepositoryView;
+import io.github.aalsanie.boundedorigingit.git.GitRepositoryViewFactory;
+import io.github.aalsanie.boundedorigingit.git.RefGenerationSnapshot;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -26,9 +26,9 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -110,45 +110,54 @@ public final class ProcessCgitRenderer implements CgitRenderer {
   public Artifact render(RefGenerationSnapshot snapshot, Operation operation)
       throws MaterializationException {
     namespace.validate(operation, snapshot);
+    Path body;
+    try {
+      body = Files.createTempFile(artifactDirectory, "cgit-", ".body");
+    } catch (IOException exception) {
+      throw new MaterializationException("failed to create cgit output file", exception);
+    }
+    try {
+      return renderToFile(snapshot, operation, body);
+    } catch (MaterializationException | RuntimeException | Error failure) {
+      try {
+        Files.deleteIfExists(body);
+      } catch (IOException cleanup) {
+        failure.addSuppressed(cleanup);
+      }
+      throw failure;
+    }
+  }
 
+  private Artifact renderToFile(RefGenerationSnapshot snapshot, Operation operation, Path body)
+      throws MaterializationException {
     try (GitRepositoryView view = views.create(snapshot)) {
       Path config = writeCgitConfig(view.path());
       Process process = start(view.path(), config, query(operation));
       try (var tasks = Executors.newVirtualThreadPerTaskExecutor()) {
-        Future<CgiOutput> stdout =
-            tasks.submit(() -> readOutput(process.getInputStream()));
+        Future<Artifact> stdout = tasks.submit(() -> readOutput(process.getInputStream(), body));
         Future<String> stderr =
             tasks.submit(() -> readBounded(process.getErrorStream(), maxStderrBytes));
-        CgiOutput output = null;
         try {
-          output = stdout.get();
+          Artifact output = stdout.get();
           int exit = process.waitFor();
           String error = stderr.get();
           if (exit != 0) {
-            output.close();
             throw new MaterializationException(
                 "cgit exited with status " + exit + boundedSuffix(error));
           }
-          return output.artifact();
+          return output;
         } catch (InterruptedException exception) {
           MaterializationException failure =
               new MaterializationException("cgit rendering was interrupted", exception);
           terminate(process);
           stdout.cancel(true);
           stderr.cancel(true);
-          try {
-            closeOutput(output);
-          } catch (MaterializationException cleanup) {
-            failure.addSuppressed(cleanup);
-          } finally {
-            Thread.currentThread().interrupt();
-          }
+          Thread.currentThread().interrupt();
           throw failure;
         } catch (ExecutionException exception) {
           terminate(process);
           stdout.cancel(true);
           stderr.cancel(true);
-          closeOutput(output);
           throw outputFailure(exception);
         }
       } finally {
@@ -202,26 +211,15 @@ public final class ProcessCgitRenderer implements CgitRenderer {
     return config;
   }
 
-  private CgiOutput readOutput(InputStream processOutput) throws IOException {
-    Path body = Files.createTempFile(artifactDirectory, "cgit-", ".body");
-    boolean completed = false;
+  private Artifact readOutput(InputStream processOutput, Path body) throws IOException {
     try (InputStream input = new BufferedInputStream(processOutput);
         OutputStream output =
             Files.newOutputStream(
                 body, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING)) {
       HeaderBlock headers = readHeaders(input);
       long length = copyBounded(input, output);
-      completed = true;
-      return new CgiOutput(
-          new Artifact(
-              headers.statusCode(),
-              length,
-              headers.metadata(),
-              new TemporaryBody(body)));
-    } finally {
-      if (!completed) {
-        Files.deleteIfExists(body);
-      }
+      return new Artifact(
+          headers.statusCode(), length, headers.metadata(), new TemporaryBody(body));
     }
   }
 
@@ -420,7 +418,8 @@ public final class ProcessCgitRenderer implements CgitRenderer {
       case "context" -> "context";
       case "ignoreWhitespace" -> "ignorews";
       case "follow" -> "follow";
-      default -> throw new IllegalArgumentException("unsupported cgit query dimension " + dimension);
+      default ->
+          throw new IllegalArgumentException("unsupported cgit query dimension " + dimension);
     };
   }
 
@@ -504,29 +503,7 @@ public final class ProcessCgitRenderer implements CgitRenderer {
     }
   }
 
-  private static void closeOutput(CgiOutput output) throws MaterializationException {
-    if (output == null) {
-      return;
-    }
-    try {
-      output.close();
-    } catch (IOException exception) {
-      throw new MaterializationException("failed to release cgit output", exception);
-    }
-  }
-
   private record HeaderBlock(int statusCode, Map<String, String> metadata) {}
-
-  private record CgiOutput(Artifact artifact) implements AutoCloseable {
-    private CgiOutput {
-      Objects.requireNonNull(artifact, "artifact");
-    }
-
-    @Override
-    public void close() throws IOException {
-      artifact.body().close();
-    }
-  }
 
   private static final class TemporaryBody implements ArtifactBody {
     private final Path path;

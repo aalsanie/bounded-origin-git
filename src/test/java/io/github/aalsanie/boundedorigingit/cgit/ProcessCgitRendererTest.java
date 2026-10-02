@@ -4,15 +4,15 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import io.github.aalsanie.boundedorigin.api.Artifact;
+import io.github.aalsanie.boundedorigin.api.MaterializationException;
+import io.github.aalsanie.boundedorigin.api.Operation;
 import io.github.aalsanie.boundedorigingit.git.GitHashAlgorithm;
 import io.github.aalsanie.boundedorigingit.git.GitObjectId;
 import io.github.aalsanie.boundedorigingit.git.GitObjectStore;
 import io.github.aalsanie.boundedorigingit.git.GitObjectType;
 import io.github.aalsanie.boundedorigingit.git.GitRefName;
 import io.github.aalsanie.boundedorigingit.git.RefGenerationSnapshot;
-import io.github.aalsanie.boundedorigin.api.Artifact;
-import io.github.aalsanie.boundedorigin.api.MaterializationException;
-import io.github.aalsanie.boundedorigin.api.Operation;
 import java.io.ByteArrayInputStream;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
@@ -104,18 +104,29 @@ final class ProcessCgitRendererTest {
 
   @Test
   void doesNotReturnFromInterruptionUntilCgitProcessHasExited() throws Exception {
+    interruptAndVerify("wait:");
+  }
+
+  @Test
+  void releasesPartialResponseFileAfterInterruption() throws Exception {
+    interruptAndVerify("partial-wait:");
+  }
+
+  private void interruptAndVerify(String prefix) throws Exception {
     Fixture fixture = fixture(4096);
     Path pidFile = temporaryDirectory.resolve("renderer.pid").toAbsolutePath();
     Operation pinned =
-        fixture.namespace().pin(
-            new Operation(
-                "cgit-render",
-                Map.of(
-                    "repository", List.of("project"),
-                    "page", List.of("log"),
-                    "grep", List.of("grep"),
-                    "search", List.of("wait:" + pidFile))),
-            fixture.snapshot());
+        fixture
+            .namespace()
+            .pin(
+                new Operation(
+                    "cgit-render",
+                    Map.of(
+                        "repository", List.of("project"),
+                        "page", List.of("log"),
+                        "grep", List.of("grep"),
+                        "search", List.of(prefix + pidFile))),
+                fixture.snapshot());
 
     AtomicReference<Throwable> failure = new AtomicReference<>();
     Thread worker =
@@ -144,6 +155,10 @@ final class ProcessCgitRendererTest {
     assertTrue(!worker.isAlive());
     assertTrue(failure.get() instanceof MaterializationException);
     assertTrue(ProcessHandle.of(pid).map(handle -> !handle.isAlive()).orElse(true));
+    try (var files = java.nio.file.Files.walk(temporaryDirectory)) {
+      assertEquals(
+          0, files.filter(path -> path.getFileName().toString().endsWith(".body")).count());
+    }
   }
 
   @Test

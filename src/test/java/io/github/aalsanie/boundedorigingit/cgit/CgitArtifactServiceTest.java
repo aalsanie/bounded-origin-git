@@ -2,20 +2,22 @@ package io.github.aalsanie.boundedorigingit.cgit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import io.github.aalsanie.boundedorigin.api.Artifact;
+import io.github.aalsanie.boundedorigin.api.ArtifactStore;
+import io.github.aalsanie.boundedorigin.api.Budget;
+import io.github.aalsanie.boundedorigin.api.MaterializationException;
+import io.github.aalsanie.boundedorigin.api.Operation;
+import io.github.aalsanie.boundedorigin.api.OperationKey;
+import io.github.aalsanie.boundedorigin.api.TrustLevel;
+import io.github.aalsanie.boundedorigin.store.fs.FileSystemArtifactStore;
 import io.github.aalsanie.boundedorigingit.git.GitHashAlgorithm;
 import io.github.aalsanie.boundedorigingit.git.GitObjectId;
 import io.github.aalsanie.boundedorigingit.git.GitRefName;
 import io.github.aalsanie.boundedorigingit.git.RefGenerationSnapshot;
-import io.github.aalsanie.boundedorigin.api.Artifact;
-import io.github.aalsanie.boundedorigin.api.Budget;
-import io.github.aalsanie.boundedorigin.api.MaterializationException;
-import io.github.aalsanie.boundedorigin.api.Operation;
-import io.github.aalsanie.boundedorigin.api.TrustLevel;
-import io.github.aalsanie.boundedorigin.core.BoundedOriginExecutor;
-import io.github.aalsanie.boundedorigin.store.fs.FileSystemArtifactStore;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -25,7 +27,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -184,10 +189,102 @@ final class CgitArtifactServiceTest {
       CgitArtifactService.Materialization materialization =
           fixture.service().materialize(snapshot, operation(), TrustLevel.TRUSTED);
 
-      assertThrows(
-          Exception.class,
-          () -> materialization.completion().toCompletableFuture().get(5, TimeUnit.SECONDS));
+      ExecutionException failure =
+          assertThrows(
+              ExecutionException.class,
+              () -> materialization.completion().toCompletableFuture().get(5, TimeUnit.SECONDS));
+      assertInstanceOf(MaterializationException.class, failure.getCause().getCause());
       assertTrue(fixture.service().lookup(snapshot, operation()).isEmpty());
+    }
+  }
+
+  @Test
+  void enforcesStricterGlobalResultLimitBeforePersistence() throws Exception {
+    Budget global = new Budget(1, 4, Duration.ofSeconds(5), 4);
+    try (CgitRenderExecutor executor = new CgitRenderExecutor(global, Duration.ofMillis(10), 32);
+        FileSystemArtifactStore store =
+            new FileSystemArtifactStore(
+                temporaryDirectory.resolve("global-limit"), 100_000, 10_000)) {
+      CgitArtifactService service =
+          new CgitArtifactService(
+              new CgitArtifactNamespace("project", new GitRefName("refs/heads/main")),
+              executor,
+              store,
+              (snapshot, operation) -> artifact("12345678"),
+              "cgit-render",
+              1,
+              "fixture-v1",
+              BUDGET);
+
+      CgitArtifactService.Materialization result =
+          service.materialize(snapshot(1, 1), operation(), TrustLevel.TRUSTED);
+
+      ExecutionException failure =
+          assertThrows(
+              ExecutionException.class,
+              () -> result.completion().toCompletableFuture().get(5, TimeUnit.SECONDS));
+      assertInstanceOf(MaterializationException.class, failure.getCause().getCause());
+      assertTrue(service.lookup(snapshot(1, 1), operation()).isEmpty());
+      assertEquals(0, store.stats().entryCount());
+    }
+  }
+
+  @Test
+  void rechecksStaleMissAfterAnotherCallerPublishes() throws Exception {
+    CountDownLatch missed = new CountDownLatch(1);
+    CountDownLatch release = new CountDownLatch(1);
+    AtomicBoolean delayFirst = new AtomicBoolean(true);
+    AtomicInteger renders = new AtomicInteger();
+    try (CgitRenderExecutor executor = new CgitRenderExecutor(BUDGET, Duration.ofMillis(10), 32);
+        FileSystemArtifactStore disk =
+            new FileSystemArtifactStore(temporaryDirectory.resolve("stale-miss"), 100_000, 10_000);
+        var callers = Executors.newVirtualThreadPerTaskExecutor()) {
+      ArtifactStore store =
+          new ArtifactStore() {
+            @Override
+            public Optional<Artifact> get(OperationKey key) throws IOException {
+              Optional<Artifact> found = disk.get(key);
+              if (delayFirst.compareAndSet(true, false)) {
+                missed.countDown();
+                await(release);
+              }
+              return found;
+            }
+
+            @Override
+            public void put(OperationKey key, Artifact value) throws IOException {
+              disk.put(key, value);
+            }
+          };
+      CgitArtifactService service =
+          new CgitArtifactService(
+              new CgitArtifactNamespace("project", new GitRefName("refs/heads/main")),
+              executor,
+              store,
+              (snapshot, operation) -> {
+                renders.incrementAndGet();
+                return artifact("shared");
+              },
+              "cgit-render",
+              1,
+              "fixture-v1",
+              BUDGET);
+      var delayed =
+          callers.submit(
+              () -> service.materialize(snapshot(1, 1), operation(), TrustLevel.TRUSTED));
+      try {
+        assertTrue(missed.await(5, TimeUnit.SECONDS));
+        service
+            .materialize(snapshot(1, 1), operation(), TrustLevel.TRUSTED)
+            .completion()
+            .toCompletableFuture()
+            .get(5, TimeUnit.SECONDS);
+      } finally {
+        release.countDown();
+      }
+      delayed.get(5, TimeUnit.SECONDS).completion().toCompletableFuture().get(5, TimeUnit.SECONDS);
+      assertEquals(1, renders.get());
+      assertEquals("shared", read(service.lookup(snapshot(1, 1), operation())));
     }
   }
 
@@ -205,8 +302,7 @@ final class CgitArtifactServiceTest {
   }
 
   private Fixture fixture(CgitRenderer renderer) throws Exception {
-    BoundedOriginExecutor executor =
-        new BoundedOriginExecutor(BUDGET, Duration.ofMillis(10), 32);
+    CgitRenderExecutor executor = new CgitRenderExecutor(BUDGET, Duration.ofMillis(10), 32);
     FileSystemArtifactStore store =
         new FileSystemArtifactStore(
             temporaryDirectory.resolve("artifacts-" + System.nanoTime()),
@@ -276,9 +372,7 @@ final class CgitArtifactServiceTest {
   }
 
   private record Fixture(
-      BoundedOriginExecutor executor,
-      FileSystemArtifactStore store,
-      CgitArtifactService service)
+      CgitRenderExecutor executor, FileSystemArtifactStore store, CgitArtifactService service)
       implements AutoCloseable {
     @Override
     public void close() throws IOException {

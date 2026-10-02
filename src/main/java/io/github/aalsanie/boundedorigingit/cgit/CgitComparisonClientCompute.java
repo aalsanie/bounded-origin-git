@@ -83,7 +83,10 @@ public final class CgitComparisonClientCompute {
       return false;
     }
     for (int index = 0; index < value.length(); index++) {
-      if (Character.digit(value.charAt(index), 16) < 0) {
+      char character = value.charAt(index);
+      if (!(character >= '0' && character <= '9'
+          || character >= 'a' && character <= 'f'
+          || character >= 'A' && character <= 'F')) {
         return false;
       }
     }

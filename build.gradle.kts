@@ -49,6 +49,7 @@ val clientTest = tasks.register<Exec>("clientTest") {
         "--test",
         "src/test/js/cgit-compare-core.test.mjs",
         "src/test/js/cgit-compare-safety.test.mjs",
+        "src/test/js/cgit-compare-regression.test.mjs",
         "src/test/js/cgit-comparison-request.test.mjs")
     inputs.files(
         fileTree("src/main/resources/io/github/aalsanie/boundedorigingit/client") {

@@ -37,6 +37,12 @@ jobs:
         with:
           node-version: '22'
 
+      - name: Install cgit for native integration checks
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends cgit
+
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb
         with:

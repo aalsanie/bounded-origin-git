@@ -59,6 +59,7 @@ final class CgitComparisonClientComputeTest {
     assertNoMatch(engine, "/project/diff", "id=" + NEW);
     assertNoMatch(engine, "/project/diff", "id=main&id2=" + OLD);
     assertNoMatch(engine, "/project/diff", "id=" + NEW + "&id2=main");
+    assertNoMatch(engine, "/project/diff", "id=" + "\uff21".repeat(40) + "&id2=" + OLD);
     assertNoMatch(engine, "/project/diff", "id=" + NEW + "&id2=" + OLD + "&follow=1");
     assertNoMatch(engine, "/project/tree", "h=main&id=" + NEW);
   }

@@ -18,6 +18,7 @@ import io.github.aalsanie.boundedorigin.api.TrustLevel;
 import io.github.aalsanie.boundedorigin.core.BoundedOriginExecutor;
 import io.github.aalsanie.boundedorigin.store.fs.FileSystemArtifactStore;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.security.MessageDigest;
@@ -199,7 +200,7 @@ final class CgitRenderOnWriteCoordinatorTest {
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() throws IOException {
       executor.close();
       store.close();
     }

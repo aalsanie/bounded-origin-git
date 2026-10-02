@@ -7,7 +7,6 @@ import io.github.aalsanie.boundedorigin.api.PolicyMatcher;
 import io.github.aalsanie.boundedorigin.api.RequestDescriptor;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashSet;

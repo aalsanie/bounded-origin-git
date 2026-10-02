@@ -85,6 +85,34 @@ test("supports side-by-side output and ignore-whitespace semantics", async () =>
   ]);
 });
 
+test("preserves empty file additions and deletions", async () => {
+  const repo = repository();
+  const empty = repo.add("blob", "");
+  const oldCommit = repo.commit(repo.tree([]));
+  const addedCommit =
+      repo.commit(repo.tree([{mode: "100644", name: "empty.txt", oid: empty}]));
+
+  const added = await compareGit({
+    oldOid: oldCommit,
+    newOid: addedCommit,
+    readObject: repo.readObject
+  });
+  assert.equal(added.changes.length, 1);
+  assert.equal(added.changes[0].status, "added");
+  assert.equal(added.changes[0].additions, 0);
+  assert.equal(added.changes[0].deletions, 0);
+
+  const deleted = await compareGit({
+    oldOid: addedCommit,
+    newOid: oldCommit,
+    readObject: repo.readObject
+  });
+  assert.equal(deleted.changes.length, 1);
+  assert.equal(deleted.changes[0].status, "deleted");
+  assert.equal(deleted.changes[0].additions, 0);
+  assert.equal(deleted.changes[0].deletions, 0);
+});
+
 test("walks recursive trees and scopes stat comparison to one path", async () => {
   const repo = repository();
   const oldA = repo.add("blob", "old-a\n");

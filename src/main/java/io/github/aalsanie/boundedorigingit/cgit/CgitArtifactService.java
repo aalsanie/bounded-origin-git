@@ -9,6 +9,7 @@ import io.github.aalsanie.boundedorigin.api.Operation;
 import io.github.aalsanie.boundedorigin.api.OperationKey;
 import io.github.aalsanie.boundedorigin.api.OriginDecision;
 import io.github.aalsanie.boundedorigin.api.OriginPolicy;
+import io.github.aalsanie.boundedorigin.api.TrustLevel;
 import io.github.aalsanie.boundedorigin.core.BoundedOriginExecutor;
 import io.github.aalsanie.boundedorigin.core.OriginExecution;
 import java.io.IOException;
@@ -58,9 +59,14 @@ public final class CgitArtifactService {
     return artifactStore.get(key(pinned));
   }
 
-  public Materialization materialize(RefGenerationSnapshot snapshot, Operation operation)
+  public Materialization materialize(
+      RefGenerationSnapshot snapshot, Operation operation, TrustLevel trustLevel)
       throws IOException {
     Objects.requireNonNull(snapshot, "snapshot");
+    Objects.requireNonNull(trustLevel, "trustLevel");
+    if (trustLevel != TrustLevel.TRUSTED) {
+      throw new SecurityException("cgit materialization requires trusted ingress");
+    }
     Operation pinned = namespace.pin(operation, snapshot);
     OperationKey key = key(pinned);
 

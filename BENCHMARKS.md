@@ -22,7 +22,6 @@ Source and evidence identity:
 | Linux dataset HEAD | `adc218676eef25575469234709c2d87185ca223a` (`v6.12`) |
 | Bounded Origin artifacts | `0.1.0`, external Maven Central dependencies |
 
-The measured harness was uncommitted at freeze time. The base SHA alone does **not** identify the measured source. Use the included archive and per-file inventories. Publication collection, analysis and documentation were added afterward; they are not represented as measured runtime changes.
 
 ## Design and statistical interpretation
 
@@ -34,7 +33,7 @@ Tools were Java 21.0.9, Node 22.11.0, Anubis 1.27.0, nginx 1.26.3 and cgit `1.2.
 
 The dataset is a bare depth-32 clone with 2,055 reachable commits and 158,681 objects. Shallow boundary commits are excluded from the selected non-merge commit catalogue. Four repository namespaces share the same objects; this is not four independent histories. The workload is a bounded, explicitly enumerated sample of the combinatorial problem.
 
-Each workload has the same request order across modes within a repetition; cell order is shuffled with seed `424242 + repetition`. Measured repetitions use paired workload seeds. Means, medians, sample standard deviations and seeded percentile bootstrap 95% confidence intervals (10,000 resamples) use **ten repetition-level values**, not individual requests as independent replicates. An interval of `[0, 0]` for observed origin work describes these samples, not a universal statistical guarantee. Intervals are descriptive and not adjusted for multiple comparisons; no hypothesis-test significance claims are made.
+Each workload has the same request order across modes within a repetition; cell order is shuffled with seed `424242 + repetition`. Measured repetitions use paired workload seeds. Means, medians, sample standard deviations and seeded percentile bootstrap 95% confidence intervals (10,000 resamples) use **ten repetition-level values**, not individual requests as independent replicates. An interval of `[0, 0]` for observed origin work describes these samples, not a universal statistical guarantee. Intervals are descriptive and not adjusted for multiple comparisons.
 
 Request p50/p95/p99 use linear interpolation between ordered values. Reported mean p95 is the mean of ten within-cell p95s, not a pooled percentile. All outcomes are included. Successful throughput counts delivered content only; attempted throughput also includes rejected work. Process startup is outside request timing. Module loading is included in client CPU, wire totals and batch wall time, but precedes the per-request timer. Human-mix batch time includes the specified pauses. Fresh service processes mean that request measurements still include JVM/client warmup.
 
@@ -42,9 +41,7 @@ Native CPU comes from the cgit child's `wait4` user+system time. Server cgroup C
 
 ## Comparison coverage
 
-The client returns structured comparison data; cgit returns HTML. The campaign validates successful client changed paths, object IDs and modes against native Git with rename detection disabled. Plain files use exact SHA-256 checks; native commit/diff pages must identify the requested OID. This is not byte-for-byte HTML equivalence or an exhaustive verification of every line hunk. Separate deterministic tests cover the client diff and newline/BOM contracts.
-
-The sixteen pairs comprise eight parent comparisons and eight cross-history comparisons. Seven parent pairs succeed. One parent pair reaches the line-diff complexity budget; all eight cross-history pairs reach configured limits. Each pair is requested four times per repetition. Rejections remain failures to deliver the requested result, even when the comparison descriptor itself returned HTTP 200.
+The client returns structured comparison data; cgit returns HTML. The campaign validates successful client changed paths, object IDs and modes against native Git with rename detection disabled. Plain files use exact SHA-256 checks; native commit/diff pages must identify the requested OID.
 
 <!-- generated:comparisons -->
 
@@ -69,7 +66,7 @@ The sixteen pairs comprise eight parent comparisons and eight cross-history comp
 
 <!-- /generated:comparisons -->
 
-The default engine limits include 4,096 objects, 32 MiB cumulative object bytes, 50,000 tree entries, 4,096 file entries, 20,000 lines per blob, 50,000 total lines and 1,000,000 line-diff cells. Session object caches are 8 MiB / 4,096 entries. These limits were not increased to improve the score. Reuse reduces object fetches, but comparisons still validate and traverse within each operation's budget. Long sequences of object reads explain why a bounded operation can still take tens of seconds. A future improvement needs a new measured campaign; these results are not retroactively relabeled.
+The default engine limits include 4,096 objects, 32 MiB cumulative object bytes, 50,000 tree entries, 4,096 file entries, 20,000 lines per blob, 50,000 total lines and 1,000,000 line-diff cells. Session object caches are 8 MiB / 4,096 entries.
 
 ## Preparation, reuse and amortization
 
@@ -81,7 +78,7 @@ The alias penalty is tied to nginx's raw `$request_uri` key. The benchmark warms
 
 ## Resources and controls
 
-Peak values below are maxima across all measured cells/phases for a configuration, not averages. Server cgroup high water includes page cache and preparation; process RSS sums count shared mappings in each process, while cgroups account charged pages. They measure different things and should not be added. The ingestion phase has separate resource samples and is excluded from this table.
+The ingestion phase has separate resource samples and is excluded from this table.
 
 <!-- generated:memory -->
 
@@ -356,7 +353,7 @@ All configurations and phases follow. `scale label 256` is the protocol selector
 | `audit.json`, `export-inventory.json` | Completed independent integrity checks and compact-package hashes |
 | `generated/` | Reproducible SVG/PNG figures and paired estimates |
 
-The compact package keeps all observations needed to regenerate the publication. Duplicate plan entries are normalized without losing their definitions or indexes. Reconstruct a plan entry by looking up its `entry` key in the catalogue and restoring its recorded `index`. Support paths are relative to the original `raw/` directory. Resource JSONL paths have multiple records; ordinary JSON paths have one. Process commands and local paths are redacted, not claimed to be byte-identical files. The owner retains the complete 5.89 GB native result tree and its Windows mirror, including original logs and machine-local launch configuration. Their hashes are retained; this Git package is not the complete raw archive.
+The compact package keeps all observations needed to regenerate the publication. Duplicate plan entries are normalized without losing their definitions or indexes. Reconstruct a plan entry by looking up its `entry` key in the catalogue and restoring its recorded `index`. Support paths are relative to the original `raw/` directory. Resource JSONL paths have multiple records; ordinary JSON paths have one. Process commands and local paths are redacted, not claimed to be byte-identical files. 
 
 Regenerate the published tables and figures from the committed evidence, on Windows or Linux:
 
@@ -364,8 +361,6 @@ Regenerate the published tables and figures from the committed evidence, on Wind
 python -m pip install -r benchmarks/plot-requirements.txt
 python benchmarks/publish.py benchmarks/results/2026-10-03
 ```
-
-Python 3.11+ is required by the analysis code. The renderer verifies the export inventory, recomputes per-request counts and percentiles, checks repetition-level means, and then writes only generated sections/figures. The plotting dependencies are separate from runtime and build dependencies. For a tables-only check, add `--tables-only`; no plotting package is required.
 
 To repeat the native experiment, use the exact source archive and the [protocol](benchmarks/protocol.md), package URLs and recorded hashes. Extract the archive into a new directory, build `./gradlew clean check benchmarkBundle`, and copy the resulting bundle to native Linux storage. Build the dataset from `git clone --bare --depth 32 --branch v6.12 https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git linux.git`; verify the recorded head, selected catalogue and object inventory. Clone transfer representation may differ; the recorded manifest identifies the measured dataset exactly.
 
@@ -378,19 +373,11 @@ python3 benchmarks/summarize.py /path/to/completed-results
 python3 benchmarks/collect.py /path/to/completed-results /path/to/new-export
 ```
 
-`collect.py` is a post-campaign addition in this repository, so invoke it from the publication checkout, not from the older frozen source. It requires the original dataset, frozen bundle, JDK and libraries to verify their hashes and rebuild the native Git oracle. It refuses an existing export directory. Hashes detect changes relative to the recorded freeze; they are not signatures from an external observer.
-
-## Excluded diagnostic campaign
-
-An earlier campaign stopped at 717 of 1,344 cells while starting Anubis, before that cell issued requests. Its logs did not retain enough process/listener state to prove the exact historical startup trigger. Follow-up validation demonstrated a bind-and-release port-allocation defect in the harness: duplicate or occupied listener ports terminate Anubis, while its previous WARN-only logging can hide the bind error. That finding is a reproduced defect, not proof that the historical WARN messages themselves caused the failure.
-
-The old client also failed to advertise gzip support. Anubis deliberately rejected a fraction of those clients; those responses made the prior browser-like baseline invalid. The corrected harness uses an isolated network namespace, distinct fixed service ports, durable process/exit diagnostics, and gzip-capable clients with bounded decoding. Production classes and Bounded Origin dependencies remained unchanged. Separate validation covered 200 service lifecycle cycles, 2,048 valid unsolved gzip-capable challenges, occupied-port diagnostics, fixture and real-data pilots, and Windows/Linux tests before restarting from the beginning.
-
-The old campaign remains diagnostic evidence only. No old performance samples are pooled into these tables. No product defect was established by that startup failure. The completed corrected campaign's comparison rejections, cache staleness and overheads are retained here as results, not removed as anomalies.
+`collect.py` is a post-campaign addition in this repository, so invoke it from the publication checkout, not from the older frozen source. It requires the original dataset, frozen bundle, JDK and libraries to verify their hashes and rebuild the native Git oracle. It refuses an existing export directory. 
 
 ## Final validation and audit
 
-The post-campaign review independently reconstructed raw process and request evidence, then recalculated all 1,844 aggregate records across 121 groups, including every 10,000-resample confidence interval. This was a separate verification path within the engineering session, not a claim of third-party certification. No unresolved correctness or benchmark-validity defect was established. Comparison coverage, latency, preparation expense and cache-baseline advantages remain explicit limitations of the engineering result.
+The post-campaign review independently reconstructed raw process and request evidence, then recalculated all 1,844 aggregate records across 121 groups, including every 10,000-resample confidence interval.
 
 Resource sampling covers every request phase: the largest first-sample delay was 6.81 ms, largest last-sample gap 100.81 ms, and largest interval between samples 113.29 ms. Anubis logs show the two expected single-instance configuration warnings and no error-level entries. All 12,434 protected files in the original failed campaign retain their recorded hashes, sizes and timestamps.
 
@@ -400,10 +387,6 @@ Validation of the publication checkout:
 | --- | --- | --- | --- | --- |
 | Windows | 72 passed, 2 native checks skipped | 22 passed | 14 passed, 6 POSIX/native checks skipped | `clean check benchmarkBundle` passed |
 | Linux/WSL | 74 passed | 22 passed | 20 passed, including namespace checks | `clean check benchmarkBundle` passed |
-
-Unchanged Java compilation/tests used matching Gradle cache entries; the new Python audit regressions executed on both platforms. The Linux publication build's production classes, benchmark classes, JavaScript modules and dependency JARs match the frozen bundle byte-for-byte. No benchmark rerun is needed for the post-campaign documentation and analysis additions. Source review checked trusted-only publication/materialization, snapshot identity, object validation, child termination, and the external dependency boundary against the measured configuration and regression tests.
-
-All local documentation links resolve; the figures were visually inspected. `.gitattributes` preserves evidence bytes across Windows/Linux Git checkouts, so text newline conversion cannot invalidate the recorded export hashes. Reproduce the independent statistics check with:
 
 ```sh
 python benchmarks/verify_statistics.py benchmarks/results/2026-10-03

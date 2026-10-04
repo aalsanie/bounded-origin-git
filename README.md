@@ -1,5 +1,11 @@
 # Bounded Origin Git
 
+Bounded Origin Git is a Git/cgit application built on the released
+[Bounded Origin](https://github.com/aalsanie/bounded-origin) libraries. Trusted jobs
+prepare pages; anonymous requests read stored results, and supported Git comparisons
+run on the client. This repository contains the integration
+and its measured comparison with cgit, nginx and Anubis.
+
 Across **47,200 measured [Bounded Origin](https://github.com/aalsanie/bounded-origin) attempts**, anonymous requests caused **zero native cgit executions**. For the 512-page unique crawl, prepared BO delivered **512/512 representations** in every measured repetition, again with zero request-triggered cgit.
 
 ![Native origin CPU and content delivery for all eight configurations](benchmarks/results/2026-10-03/generated/origin-and-delivery.svg)

@@ -128,12 +128,11 @@ def tables(campaign, repo):
     update_block(repo / "README.md", "preparation", table(["Preparation for 512-request cell", "CGI executions", "Wall time (s)", "Native CPU (s)", "Server CPU (s)"], prep_rows))
     ingestion = c.ingestions
     update_block(repo / "README.md", "ingestion",
-        f'Fresh ingestion of {int(ingestion[0]["objects"]):,} objects took **{statistics.mean(r["wall_seconds"] for r in ingestion)/60:.2f} minutes** '
-        f'on average ({min(r["wall_seconds"] for r in ingestion)/60:.2f}–{max(r["wall_seconds"] for r in ingestion)/60:.2f}), '
-        f'with {statistics.mean(r["cpu_seconds"] for r in ingestion):.2f} server CPU seconds. '
-        f'The loose-object store occupied {ingestion[0]["file_bytes"]/1024**2:.2f} MiB of file content and '
-        f'{ingestion[0]["file_allocated_bytes"]/1024**3:.3f} GiB of allocated filesystem space, before HTML artifacts. '
-        'This cost is outside the request measurements and was paid afresh in every repetition.')
+        f'Ingesting {int(ingestion[0]["objects"]):,} objects into a fresh store averaged '
+        f'**{statistics.mean(r["wall_seconds"] for r in ingestion)/60:.2f} minutes** '
+        f'({min(r["wall_seconds"] for r in ingestion)/60:.2f}–{max(r["wall_seconds"] for r in ingestion)/60:.2f}) '
+        f'and {statistics.mean(r["cpu_seconds"] for r in ingestion):.2f} server CPU seconds, '
+        f'using **{ingestion[0]["file_allocated_bytes"]/1024**3:.3f} GiB** of allocated disk space before page preparation.')
     full = []
     for workload, scale, phase in sorted({(r["workload"], r["scale"], r["phase"]) for r in c.cells}):
         rows = []
@@ -161,12 +160,10 @@ def tables(campaign, repo):
     bounded = [r for r in c.cells if r["mode"].startswith("bounded")]
     direct = [r for r in c.cells if r["mode"] == "cgit"]
     update_block(repo / "README.md", "resources",
-                 f'Maximum server cgroup memory across measured BO cells was **{max(r["server_cgroup_memory_high_water_bytes"] for r in bounded)/1024**2:.1f} MiB**, '
-                 f'versus **{max(r["server_cgroup_memory_high_water_bytes"] for r in direct)/1024**2:.1f} MiB** for direct cgit. '
-                 f'BO client cgroups reached **{max(r["client_cgroup_memory_high_water_bytes"] for r in bounded)/1024**2:.1f} MiB**. '
-                 'These are maxima across different workloads, including preparation and page cache; ingestion is separate. '
-                 'They demonstrate the observed resource envelope, not a general memory-efficiency ratio. '
-                 'The full report also retains sampled process RSS, native I/O, cache counters and wire bytes.')
+                 f'Peak server memory: **{max(r["server_cgroup_memory_high_water_bytes"] for r in bounded)/1024**2:.1f} MiB for BO**, '
+                 f'**{max(r["server_cgroup_memory_high_water_bytes"] for r in direct)/1024**2:.1f} MiB for cgit**; '
+                 f'BO client peak: **{max(r["client_cgroup_memory_high_water_bytes"] for r in bounded)/1024**2:.1f} MiB**. '
+                 'These are observed cgroup maxima across workloads, including preparation and page cache, excluding ingestion.')
     comparison_rows = []
     for operation, outcomes in sorted(c.comparisons.items()):
         _, _, older, newer, mode = operation.split(":")

@@ -1,14 +1,10 @@
 # Linux/cgit campaign: October 3, 2026
 
-The corrected campaign completed all 1,344 planned cells. The result supports bounded authority over native origin computation and reuse of prepared representations. It also exposes substantial preparation costs, lower cached-serving performance than nginx, and incomplete, slow client comparison coverage. The [README](README.md) presents these findings together.
+The campaign completed all **1,344 cells**. Prepared pages avoided request-time cgit work; warm nginx was faster, and client comparisons had lower coverage and higher latency. The [README](README.md) shows the main results.
 
 ## Evidence and acceptance
 
-The publication evidence is [`benchmarks/results/2026-10-03`](benchmarks/results/2026-10-03). `collect.py` independently checked all 29,617 recorded files (5,888,931,224 bytes), regenerated the workload plans, reconstructed native process lifetimes and CPU deltas, checked request semantics and outcomes, and validated process exits, cgroup cleanup, resources and controls. The Windows mirror matched the same original inventory. The raw result files remain unchanged.
-
-There are 12 complete repetitions: two warmups and ten measured runs. Each has 112 cells, 121 request phases and four separate controls. Ref publication adds phases within a cell; it does not create another independent repetition. There are 225,408 recorded requests including warmups and 187,840 measured requests. The complete audit findings and provenance are machine readable in [`audit.json`](benchmarks/results/2026-10-03/audit.json).
-
-The audit found no unexpected client/protocol error, normal native CGI failure, anonymous BO render, orphaned process, memory quota failure, OOM kill or task-limit event. Intentional fault controls are distinct from traffic failures. JVM exit 143 follows recorded SIGTERM cleanup; it is not a spontaneous JVM crash. Sampled memory is not a proof about unsampled instants; cgroup high-water counters complement the 100 ms samples.
+We verified all **12 runs** (two warmups and ten measured) and **29,617 evidence files**. The Windows copy matched, and no unexpected failures or leftover processes were found. Raw data is unchanged; [audit.json](benchmarks/results/2026-10-03/audit.json) records the checks and totals.
 
 Source and evidence identity:
 
@@ -37,7 +33,7 @@ Each workload has the same request order across modes within a repetition; cell 
 
 Request p50/p95/p99 use linear interpolation between ordered values. Reported mean p95 is the mean of ten within-cell p95s, not a pooled percentile. All outcomes are included. Successful throughput counts delivered content only; attempted throughput also includes rejected work. Process startup is outside request timing. Module loading is included in client CPU, wire totals and batch wall time, but precedes the per-request timer. Human-mix batch time includes the specified pauses. Fresh service processes mean that request measurements still include JVM/client warmup.
 
-Native CPU comes from the cgit child's `wait4` user+system time. Server cgroup CPU includes Python CGI instrumentation and transport, which visibly affect the baseline; this is not a claim about an optimized production FastCGI deployment. Memory high-water values are lifetime-per-cell counters and can include preparation. Optional block-I/O cgroup counters were unavailable; native `/proc` I/O counters, process samples and filesystem allocation remain available. Wire counts include HTTP framing and intermediate challenge/object requests, not TCP/IP overhead or retransmission. CSS, images and DOM rendering are excluded.
+Native CPU measures cgit itself; total server CPU also includes the benchmark's Python transport. Byte counts cover HTTP traffic, excluding TCP/IP overhead. Browser assets and rendering are excluded.
 
 ## Comparison coverage
 
@@ -68,17 +64,11 @@ The client returns structured comparison data; cgit returns HTML. The campaign v
 
 The default engine limits include 4,096 objects, 32 MiB cumulative object bytes, 50,000 tree entries, 4,096 file entries, 20,000 lines per blob, 50,000 total lines and 1,000,000 line-diff cells. Session object caches are 8 MiB / 4,096 entries.
 
-## Preparation, reuse and amortization
-
-The README shows the measured ingestion and HTML preparation costs. Neither is folded into anonymous request-time CPU. The complete preparation and ingestion tables include every measured repetition. The 512-unique BO preparation costs approximately 18.58 server CPU seconds, followed by 1.20 request CPU seconds, compared with 13.63 seconds for one direct batch; native preparation CPU is also higher than one direct request batch. Object ingestion adds approximately 106.40 CPU seconds and 12.91 minutes wall time per fresh store.
-
-These costs can amortize across repeated access, but the campaign does not measure a long-lived production cache or establish a universal break-even point. Prepared HTML is chosen from the eventual request catalogue. Unseen content still misses. Mutable-ref publication invalidates the generation-specific lookup: publication precedes preparation, producing an explicit availability gap rather than stale data. The nginx baseline has a one-hour TTL and no ref-update purge; a production purge integration could change that outcome.
-
-The alias penalty is tied to nginx's raw `$request_uri` key. The benchmark warms canonical routes for both systems, then exercises equivalent aliases. A cache configured with application-aware canonical keys can avoid those extra renders. Proof-of-work is measured with real challenges, hashing and verification; it gates access rather than changing the cost of admitted native work. Cookie churn repeats that client cost. Node native crypto timing cannot be extrapolated to browser/mobile energy or latency.
+Preparation and ingestion costs are [reported separately](README.md#preparation-cost).
 
 ## Resources and controls
 
-The ingestion phase has separate resource samples and is excluded from this table.
+Memory peaks include preparation; ingestion is excluded.
 
 <!-- generated:memory -->
 
@@ -95,9 +85,7 @@ The ingestion phase has separate resource samples and is excluded from this tabl
 
 <!-- /generated:memory -->
 
-The configured limits are 4,096 MiB server and 2,048 MiB client. All 181,133 resource samples, lifecycle records and cgroup terminal counters were checked, including warmups and controls. HTML artifacts were limited to 128 MiB each and 2 GiB per cell; object ingestion is a separately trusted store with per-object bounds. This short campaign does not demonstrate long-term object retention, filesystem crash recovery or disk exhaustion behavior.
-
-Controls use a deliberate delay before cgit execution to make simultaneous admission observable. At 64 distinct submissions, 18 succeed and 46 are rejected, consistent with the configured 2 active + 16 queued capacity; native interval reconstruction proves a maximum of two concurrent children. The queue itself is not continuously sampled. Timeout starts on execution, so four delayed jobs run in two waves and the complete control takes approximately ten seconds. Failure and timeout controls publish no artifacts and leave no active work. Same-key submissions share one producer. Cooldown retries start within the recorded 500 ms cooldown. These are fault-injection results, separate from traffic throughput.
+Limits were **4 GiB server / 2 GiB client**; see the [admission and failure results](README.md#admission-and-ref-updates) for execution bounds and cleanup checks.
 
 ## Paired effects and complete results
 

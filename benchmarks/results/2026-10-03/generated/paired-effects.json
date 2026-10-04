@@ -1,0 +1,182 @@
+[
+  {
+    "workload": "unique-crawl",
+    "scale": 512,
+    "metric": "origin_cpu_seconds_per_1000_attempts",
+    "n": 10,
+    "mean_difference": -4.7328023437499995,
+    "ci95_lower": -4.7582442578125,
+    "ci95_upper": -4.709938549804687
+  },
+  {
+    "workload": "repeat-burst",
+    "scale": 512,
+    "metric": "origin_cpu_seconds_per_1000_attempts",
+    "n": 10,
+    "mean_difference": -6.9322160156249995,
+    "ci95_lower": -6.975138701171875,
+    "ci95_upper": -6.8965522021484365
+  },
+  {
+    "workload": "comparisons",
+    "scale": 256,
+    "metric": "origin_cpu_seconds_per_1000_attempts",
+    "n": 10,
+    "mean_difference": -1235.6774343749998,
+    "ci95_lower": -1240.1170052734376,
+    "ci95_upper": -1231.5220677734374
+  },
+  {
+    "workload": "human-mix",
+    "scale": 256,
+    "metric": "origin_cpu_seconds_per_1000_attempts",
+    "n": 10,
+    "mean_difference": -5.15526,
+    "ci95_lower": -5.43150275,
+    "ci95_upper": -4.8697475
+  },
+  {
+    "workload": "unique-crawl",
+    "scale": 512,
+    "metric": "server_cpu_seconds",
+    "n": 10,
+    "mean_difference": -12.42412603,
+    "ci95_lower": -12.505483811749999,
+    "ci95_upper": -12.36721326
+  },
+  {
+    "workload": "repeat-burst",
+    "scale": 512,
+    "metric": "server_cpu_seconds",
+    "n": 10,
+    "mean_difference": -13.6133767,
+    "ci95_lower": -13.74230526575,
+    "ci95_upper": -13.49969619
+  },
+  {
+    "workload": "comparisons",
+    "scale": 256,
+    "metric": "server_cpu_seconds",
+    "n": 10,
+    "mean_difference": -112.76700876000001,
+    "ci95_lower": -113.28006037775,
+    "ci95_upper": -112.27467806400001
+  },
+  {
+    "workload": "human-mix",
+    "scale": 256,
+    "metric": "server_cpu_seconds",
+    "n": 10,
+    "mean_difference": -0.46942159,
+    "ci95_lower": -0.5106867605000001,
+    "ci95_upper": -0.43007253500000003
+  },
+  {
+    "workload": "unique-crawl",
+    "scale": 512,
+    "metric": "client_cpu_seconds",
+    "n": 10,
+    "mean_difference": -0.012917889999999965,
+    "ci95_lower": -0.03951265474999998,
+    "ci95_upper": 0.013041400000000092
+  },
+  {
+    "workload": "repeat-burst",
+    "scale": 512,
+    "metric": "client_cpu_seconds",
+    "n": 10,
+    "mean_difference": -0.10783057000000003,
+    "ci95_lower": -0.163527641,
+    "ci95_upper": -0.06222120650000003
+  },
+  {
+    "workload": "comparisons",
+    "scale": 256,
+    "metric": "client_cpu_seconds",
+    "n": 10,
+    "mean_difference": 13.76567352,
+    "ci95_lower": 13.625127911,
+    "ci95_upper": 13.93620249
+  },
+  {
+    "workload": "human-mix",
+    "scale": 256,
+    "metric": "client_cpu_seconds",
+    "n": 10,
+    "mean_difference": 0.19343105,
+    "ci95_lower": 0.17553677524999997,
+    "ci95_upper": 0.21229358924999997
+  },
+  {
+    "workload": "unique-crawl",
+    "scale": 512,
+    "metric": "p95_ms",
+    "n": 10,
+    "mean_difference": -210.88803999499999,
+    "ci95_lower": -213.80792287125,
+    "ci95_upper": -207.81456956999997
+  },
+  {
+    "workload": "repeat-burst",
+    "scale": 512,
+    "metric": "p95_ms",
+    "n": 10,
+    "mean_difference": -233.00967935500006,
+    "ci95_lower": -236.75481989112507,
+    "ci95_upper": -229.24069139675012
+  },
+  {
+    "workload": "comparisons",
+    "scale": 256,
+    "metric": "p95_ms",
+    "n": 10,
+    "mean_difference": 39942.787501025,
+    "ci95_lower": 39673.994366737745,
+    "ci95_upper": 40202.84011171313
+  },
+  {
+    "workload": "human-mix",
+    "scale": 256,
+    "metric": "p95_ms",
+    "n": 10,
+    "mean_difference": 333.8647773449993,
+    "ci95_lower": 282.4532950723748,
+    "ci95_upper": 388.23182360349875
+  },
+  {
+    "workload": "unique-crawl",
+    "scale": 512,
+    "metric": "delivered_fraction",
+    "n": 10,
+    "mean_difference": 0.0,
+    "ci95_lower": 0.0,
+    "ci95_upper": 0.0
+  },
+  {
+    "workload": "repeat-burst",
+    "scale": 512,
+    "metric": "delivered_fraction",
+    "n": 10,
+    "mean_difference": 0.0,
+    "ci95_lower": 0.0,
+    "ci95_upper": 0.0
+  },
+  {
+    "workload": "comparisons",
+    "scale": 256,
+    "metric": "delivered_fraction",
+    "n": 10,
+    "mean_difference": -0.5625,
+    "ci95_lower": -0.5625,
+    "ci95_upper": -0.5625
+  },
+  {
+    "workload": "human-mix",
+    "scale": 256,
+    "metric": "delivered_fraction",
+    "n": 10,
+    "mean_difference": -0.04750000000000002,
+    "ci95_lower": -0.06499999999999999,
+    "ci95_upper": -0.032500000000000015
+  }
+]

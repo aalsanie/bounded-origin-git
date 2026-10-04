@@ -140,24 +140,29 @@ final class ProcessCgitRendererTest {
                   }
                 });
 
-    long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(5);
-    while (!java.nio.file.Files.exists(pidFile) && System.nanoTime() - deadline < 0) {
-      Thread.sleep(10);
-    }
-    assertTrue(java.nio.file.Files.exists(pidFile));
-    long pid =
-        Long.parseLong(
-            java.nio.file.Files.readString(pidFile, StandardCharsets.US_ASCII).trim());
+    try {
+      long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(5);
+      while (!java.nio.file.Files.exists(pidFile) && System.nanoTime() - deadline < 0) {
+        Thread.sleep(10);
+      }
+      assertTrue(java.nio.file.Files.exists(pidFile));
+      long pid =
+          Long.parseLong(
+              java.nio.file.Files.readString(pidFile, StandardCharsets.US_ASCII).trim());
 
-    worker.interrupt();
-    worker.join(TimeUnit.SECONDS.toMillis(5));
+      worker.interrupt();
+      worker.join(TimeUnit.SECONDS.toMillis(5));
 
-    assertTrue(!worker.isAlive());
-    assertTrue(failure.get() instanceof MaterializationException);
-    assertTrue(ProcessHandle.of(pid).map(handle -> !handle.isAlive()).orElse(true));
-    try (var files = java.nio.file.Files.walk(temporaryDirectory)) {
-      assertEquals(
-          0, files.filter(path -> path.getFileName().toString().endsWith(".body")).count());
+      assertTrue(!worker.isAlive());
+      assertTrue(failure.get() instanceof MaterializationException);
+      assertTrue(ProcessHandle.of(pid).map(handle -> !handle.isAlive()).orElse(true));
+      try (var files = java.nio.file.Files.walk(temporaryDirectory)) {
+        assertEquals(
+            0, files.filter(path -> path.getFileName().toString().endsWith(".body")).count());
+      }
+    } finally {
+      worker.interrupt();
+      worker.join(TimeUnit.SECONDS.toMillis(5));
     }
   }
 

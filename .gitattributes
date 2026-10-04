@@ -1,0 +1,2 @@
+/benchmarks/results/** -text
+/benchmarks/results/**/*.csv whitespace=cr-at-eol

@@ -1,0 +1,22 @@
+{
+  "dataset": "/srv/cgit-benchmark/linux.git",
+  "manifest": "/srv/cgit-benchmark/dataset.json",
+  "bundle": "/srv/cgit-benchmark/bundle",
+  "java": "/usr/bin/java",
+  "node": "/srv/cgit-benchmark/tools/node",
+  "cgit": "/srv/cgit-benchmark/tools/cgit.cgi",
+  "cgit_library_path": "/srv/cgit-benchmark/tools/lib",
+  "nginx": "/srv/cgit-benchmark/tools/nginx",
+  "anubis": "/srv/cgit-benchmark/tools/anubis",
+  "scratch": "/srv/cgit-benchmark/new-run-scratch",
+  "provenance": "/srv/cgit-benchmark/provenance",
+  "source": {
+    "base_sha": "REPLACE_WITH_GIT_REVISION",
+    "archive_sha256": "REPLACE_WITH_SOURCE_ARCHIVE_SHA256"
+  },
+  "warmups": 2,
+  "repetitions": 10,
+  "requests": 256,
+  "request_scales": [32, 128, 512],
+  "seed": 424242
+}

@@ -1,0 +1,974 @@
+[
+  {
+    "control": "distinct-queue",
+    "joined": 0,
+    "native_executions": 18,
+    "native_max_concurrency": 2,
+    "outcomes": {
+      "GLOBAL_QUEUE_LIMIT": 46,
+      "success": 18
+    },
+    "repetition": "run-00",
+    "stats": {
+      "active": 0,
+      "artifact_entries": 18,
+      "in_flight": 0,
+      "object_bytes": 0,
+      "object_requests": 0,
+      "queued": 0,
+      "render_calls": 18
+    },
+    "wall_seconds": 3.374370289
+  },
+  {
+    "control": "failure",
+    "joined": 3,
+    "native_executions": 1,
+    "native_max_concurrency": 1,
+    "outcomes": {
+      "MATERIALIZATION_FAILED": 4
+    },
+    "repetition": "run-00",
+    "stats": {
+      "active": 0,
+      "artifact_entries": 0,
+      "in_flight": 0,
+      "object_bytes": 0,
+      "object_requests": 0,
+      "queued": 0,
+      "render_calls": 1
+    },
+    "wall_seconds": 0.082885726
+  },
+  {
+    "control": "same-key",
+    "joined": 63,
+    "native_executions": 1,
+    "native_max_concurrency": 1,
+    "outcomes": {
+      "success": 64
+    },
+    "repetition": "run-00",
+    "stats": {
+      "active": 0,
+      "artifact_entries": 1,
+      "in_flight": 0,
+      "object_bytes": 0,
+      "object_requests": 0,
+      "queued": 0,
+      "render_calls": 1
+    },
+    "wall_seconds": 0.468610392
+  },
+  {
+    "control": "timeout",
+    "joined": 0,
+    "native_executions": 4,
+    "native_max_concurrency": 2,
+    "outcomes": {
+      "TIMEOUT": 4
+    },
+    "repetition": "run-00",
+    "stats": {
+      "active": 0,
+      "artifact_entries": 0,
+      "in_flight": 0,
+      "object_bytes": 0,
+      "object_requests": 0,
+      "queued": 0,
+      "render_calls": 4
+    },
+    "wall_seconds": 10.089186802
+  },
+  {
+    "control": "distinct-queue",
+    "joined": 0,
+    "native_executions": 18,
+    "native_max_concurrency": 2,
+    "outcomes": {
+      "GLOBAL_QUEUE_LIMIT": 46,
+      "success": 18
+    },
+    "repetition": "run-01",
+    "stats": {
+      "active": 0,
+      "artifact_entries": 18,
+      "in_flight": 0,
+      "object_bytes": 0,
+      "object_requests": 0,
+      "queued": 0,
+      "render_calls": 18
+    },
+    "wall_seconds": 3.408897683
+  },
+  {
+    "control": "failure",
+    "joined": 3,
+    "native_executions": 1,
+    "native_max_concurrency": 1,
+    "outcomes": {
+      "MATERIALIZATION_FAILED": 4
+    },
+    "repetition": "run-01",
+    "stats": {
+      "active": 0,
+      "artifact_entries": 0,
+      "in_flight": 0,
+      "object_bytes": 0,
+      "object_requests": 0,
+      "queued": 0,
+      "render_calls": 1
+    },
+    "wall_seconds": 0.092309918
+  },
+  {
+    "control": "same-key",
+    "joined": 63,
+    "native_executions": 1,
+    "native_max_concurrency": 1,
+    "outcomes": {
+      "success": 64
+    },
+    "repetition": "run-01",
+    "stats": {
+      "active": 0,
+      "artifact_entries": 1,
+      "in_flight": 0,
+      "object_bytes": 0,
+      "object_requests": 0,
+      "queued": 0,
+      "render_calls": 1
+    },
+    "wall_seconds": 0.447569531
+  },
+  {
+    "control": "timeout",
+    "joined": 0,
+    "native_executions": 4,
+    "native_max_concurrency": 2,
+    "outcomes": {
+      "TIMEOUT": 4
+    },
+    "repetition": "run-01",
+    "stats": {
+      "active": 0,
+      "artifact_entries": 0,
+      "in_flight": 0,
+      "object_bytes": 0,
+      "object_requests": 0,
+      "queued": 0,
+      "render_calls": 4
+    },
+    "wall_seconds": 10.086145059
+  },
+  {
+    "control": "distinct-queue",
+    "joined": 0,
+    "native_executions": 18,
+    "native_max_concurrency": 2,
+    "outcomes": {
+      "GLOBAL_QUEUE_LIMIT": 46,
+      "success": 18
+    },
+    "repetition": "run-02",
+    "stats": {
+      "active": 0,
+      "artifact_entries": 18,
+      "in_flight": 0,
+      "object_bytes": 0,
+      "object_requests": 0,
+      "queued": 0,
+      "render_calls": 18
+    },
+    "wall_seconds": 3.375438677
+  },
+  {
+    "control": "failure",
+    "joined": 3,
+    "native_executions": 1,
+    "native_max_concurrency": 1,
+    "outcomes": {
+      "MATERIALIZATION_FAILED": 4
+    },
+    "repetition": "run-02",
+    "stats": {
+      "active": 0,
+      "artifact_entries": 0,
+      "in_flight": 0,
+      "object_bytes": 0,
+      "object_requests": 0,
+      "queued": 0,
+      "render_calls": 1
+    },
+    "wall_seconds": 0.09588048
+  },
+  {
+    "control": "same-key",
+    "joined": 63,
+    "native_executions": 1,
+    "native_max_concurrency": 1,
+    "outcomes": {
+      "success": 64
+    },
+    "repetition": "run-02",
+    "stats": {
+      "active": 0,
+      "artifact_entries": 1,
+      "in_flight": 0,
+      "object_bytes": 0,
+      "object_requests": 0,
+      "queued": 0,
+      "render_calls": 1
+    },
+    "wall_seconds": 0.471395367
+  },
+  {
+    "control": "timeout",
+    "joined": 0,
+    "native_executions": 4,
+    "native_max_concurrency": 2,
+    "outcomes": {
+      "TIMEOUT": 4
+    },
+    "repetition": "run-02",
+    "stats": {
+      "active": 0,
+      "artifact_entries": 0,
+      "in_flight": 0,
+      "object_bytes": 0,
+      "object_requests": 0,
+      "queued": 0,
+      "render_calls": 4
+    },
+    "wall_seconds": 10.09266206
+  },
+  {
+    "control": "distinct-queue",
+    "joined": 0,
+    "native_executions": 18,
+    "native_max_concurrency": 2,
+    "outcomes": {
+      "GLOBAL_QUEUE_LIMIT": 46,
+      "success": 18
+    },
+    "repetition": "run-03",
+    "stats": {
+      "active": 0,
+      "artifact_entries": 18,
+      "in_flight": 0,
+      "object_bytes": 0,
+      "object_requests": 0,
+      "queued": 0,
+      "render_calls": 18
+    },
+    "wall_seconds": 3.413671672
+  },
+  {
+    "control": "failure",
+    "joined": 3,
+    "native_executions": 1,
+    "native_max_concurrency": 1,
+    "outcomes": {
+      "MATERIALIZATION_FAILED": 4
+    },
+    "repetition": "run-03",
+    "stats": {
+      "active": 0,
+      "artifact_entries": 0,
+      "in_flight": 0,
+      "object_bytes": 0,
+      "object_requests": 0,
+      "queued": 0,
+      "render_calls": 1
+    },
+    "wall_seconds": 0.090864318
+  },
+  {
+    "control": "same-key",
+    "joined": 63,
+    "native_executions": 1,
+    "native_max_concurrency": 1,
+    "outcomes": {
+      "success": 64
+    },
+    "repetition": "run-03",
+    "stats": {
+      "active": 0,
+      "artifact_entries": 1,
+      "in_flight": 0,
+      "object_bytes": 0,
+      "object_requests": 0,
+      "queued": 0,
+      "render_calls": 1
+    },
+    "wall_seconds": 0.462459013
+  },
+  {
+    "control": "timeout",
+    "joined": 0,
+    "native_executions": 4,
+    "native_max_concurrency": 2,
+    "outcomes": {
+      "TIMEOUT": 4
+    },
+    "repetition": "run-03",
+    "stats": {
+      "active": 0,
+      "artifact_entries": 0,
+      "in_flight": 0,
+      "object_bytes": 0,
+      "object_requests": 0,
+      "queued": 0,
+      "render_calls": 4
+    },
+    "wall_seconds": 10.091081198
+  },
+  {
+    "control": "distinct-queue",
+    "joined": 0,
+    "native_executions": 18,
+    "native_max_concurrency": 2,
+    "outcomes": {
+      "GLOBAL_QUEUE_LIMIT": 46,
+      "success": 18
+    },
+    "repetition": "run-04",
+    "stats": {
+      "active": 0,
+      "artifact_entries": 18,
+      "in_flight": 0,
+      "object_bytes": 0,
+      "object_requests": 0,
+      "queued": 0,
+      "render_calls": 18
+    },
+    "wall_seconds": 3.399367555
+  },
+  {
+    "control": "failure",
+    "joined": 3,
+    "native_executions": 1,
+    "native_max_concurrency": 1,
+    "outcomes": {
+      "MATERIALIZATION_FAILED": 4
+    },
+    "repetition": "run-04",
+    "stats": {
+      "active": 0,
+      "artifact_entries": 0,
+      "in_flight": 0,
+      "object_bytes": 0,
+      "object_requests": 0,
+      "queued": 0,
+      "render_calls": 1
+    },
+    "wall_seconds": 0.10304247
+  },
+  {
+    "control": "same-key",
+    "joined": 63,
+    "native_executions": 1,
+    "native_max_concurrency": 1,
+    "outcomes": {
+      "success": 64
+    },
+    "repetition": "run-04",
+    "stats": {
+      "active": 0,
+      "artifact_entries": 1,
+      "in_flight": 0,
+      "object_bytes": 0,
+      "object_requests": 0,
+      "queued": 0,
+      "render_calls": 1
+    },
+    "wall_seconds": 0.457356649
+  },
+  {
+    "control": "timeout",
+    "joined": 0,
+    "native_executions": 4,
+    "native_max_concurrency": 2,
+    "outcomes": {
+      "TIMEOUT": 4
+    },
+    "repetition": "run-04",
+    "stats": {
+      "active": 0,
+      "artifact_entries": 0,
+      "in_flight": 0,
+      "object_bytes": 0,
+      "object_requests": 0,
+      "queued": 0,
+      "render_calls": 4
+    },
+    "wall_seconds": 10.135857061
+  },
+  {
+    "control": "distinct-queue",
+    "joined": 0,
+    "native_executions": 18,
+    "native_max_concurrency": 2,
+    "outcomes": {
+      "GLOBAL_QUEUE_LIMIT": 46,
+      "success": 18
+    },
+    "repetition": "run-05",
+    "stats": {
+      "active": 0,
+      "artifact_entries": 18,
+      "in_flight": 0,
+      "object_bytes": 0,
+      "object_requests": 0,
+      "queued": 0,
+      "render_calls": 18
+    },
+    "wall_seconds": 3.406084291
+  },
+  {
+    "control": "failure",
+    "joined": 3,
+    "native_executions": 1,
+    "native_max_concurrency": 1,
+    "outcomes": {
+      "MATERIALIZATION_FAILED": 4
+    },
+    "repetition": "run-05",
+    "stats": {
+      "active": 0,
+      "artifact_entries": 0,
+      "in_flight": 0,
+      "object_bytes": 0,
+      "object_requests": 0,
+      "queued": 0,
+      "render_calls": 1
+    },
+    "wall_seconds": 0.089042519
+  },
+  {
+    "control": "same-key",
+    "joined": 63,
+    "native_executions": 1,
+    "native_max_concurrency": 1,
+    "outcomes": {
+      "success": 64
+    },
+    "repetition": "run-05",
+    "stats": {
+      "active": 0,
+      "artifact_entries": 1,
+      "in_flight": 0,
+      "object_bytes": 0,
+      "object_requests": 0,
+      "queued": 0,
+      "render_calls": 1
+    },
+    "wall_seconds": 0.487467389
+  },
+  {
+    "control": "timeout",
+    "joined": 0,
+    "native_executions": 4,
+    "native_max_concurrency": 2,
+    "outcomes": {
+      "TIMEOUT": 4
+    },
+    "repetition": "run-05",
+    "stats": {
+      "active": 0,
+      "artifact_entries": 0,
+      "in_flight": 0,
+      "object_bytes": 0,
+      "object_requests": 0,
+      "queued": 0,
+      "render_calls": 4
+    },
+    "wall_seconds": 10.083576317
+  },
+  {
+    "control": "distinct-queue",
+    "joined": 0,
+    "native_executions": 18,
+    "native_max_concurrency": 2,
+    "outcomes": {
+      "GLOBAL_QUEUE_LIMIT": 46,
+      "success": 18
+    },
+    "repetition": "run-06",
+    "stats": {
+      "active": 0,
+      "artifact_entries": 18,
+      "in_flight": 0,
+      "object_bytes": 0,
+      "object_requests": 0,
+      "queued": 0,
+      "render_calls": 18
+    },
+    "wall_seconds": 3.456061476
+  },
+  {
+    "control": "failure",
+    "joined": 3,
+    "native_executions": 1,
+    "native_max_concurrency": 1,
+    "outcomes": {
+      "MATERIALIZATION_FAILED": 4
+    },
+    "repetition": "run-06",
+    "stats": {
+      "active": 0,
+      "artifact_entries": 0,
+      "in_flight": 0,
+      "object_bytes": 0,
+      "object_requests": 0,
+      "queued": 0,
+      "render_calls": 1
+    },
+    "wall_seconds": 0.076672866
+  },
+  {
+    "control": "same-key",
+    "joined": 63,
+    "native_executions": 1,
+    "native_max_concurrency": 1,
+    "outcomes": {
+      "success": 64
+    },
+    "repetition": "run-06",
+    "stats": {
+      "active": 0,
+      "artifact_entries": 1,
+      "in_flight": 0,
+      "object_bytes": 0,
+      "object_requests": 0,
+      "queued": 0,
+      "render_calls": 1
+    },
+    "wall_seconds": 0.468532624
+  },
+  {
+    "control": "timeout",
+    "joined": 0,
+    "native_executions": 4,
+    "native_max_concurrency": 2,
+    "outcomes": {
+      "TIMEOUT": 4
+    },
+    "repetition": "run-06",
+    "stats": {
+      "active": 0,
+      "artifact_entries": 0,
+      "in_flight": 0,
+      "object_bytes": 0,
+      "object_requests": 0,
+      "queued": 0,
+      "render_calls": 4
+    },
+    "wall_seconds": 10.102152187
+  },
+  {
+    "control": "distinct-queue",
+    "joined": 0,
+    "native_executions": 18,
+    "native_max_concurrency": 2,
+    "outcomes": {
+      "GLOBAL_QUEUE_LIMIT": 46,
+      "success": 18
+    },
+    "repetition": "run-07",
+    "stats": {
+      "active": 0,
+      "artifact_entries": 18,
+      "in_flight": 0,
+      "object_bytes": 0,
+      "object_requests": 0,
+      "queued": 0,
+      "render_calls": 18
+    },
+    "wall_seconds": 3.428592751
+  },
+  {
+    "control": "failure",
+    "joined": 3,
+    "native_executions": 1,
+    "native_max_concurrency": 1,
+    "outcomes": {
+      "MATERIALIZATION_FAILED": 4
+    },
+    "repetition": "run-07",
+    "stats": {
+      "active": 0,
+      "artifact_entries": 0,
+      "in_flight": 0,
+      "object_bytes": 0,
+      "object_requests": 0,
+      "queued": 0,
+      "render_calls": 1
+    },
+    "wall_seconds": 0.086702
+  },
+  {
+    "control": "same-key",
+    "joined": 63,
+    "native_executions": 1,
+    "native_max_concurrency": 1,
+    "outcomes": {
+      "success": 64
+    },
+    "repetition": "run-07",
+    "stats": {
+      "active": 0,
+      "artifact_entries": 1,
+      "in_flight": 0,
+      "object_bytes": 0,
+      "object_requests": 0,
+      "queued": 0,
+      "render_calls": 1
+    },
+    "wall_seconds": 0.468130424
+  },
+  {
+    "control": "timeout",
+    "joined": 0,
+    "native_executions": 4,
+    "native_max_concurrency": 2,
+    "outcomes": {
+      "TIMEOUT": 4
+    },
+    "repetition": "run-07",
+    "stats": {
+      "active": 0,
+      "artifact_entries": 0,
+      "in_flight": 0,
+      "object_bytes": 0,
+      "object_requests": 0,
+      "queued": 0,
+      "render_calls": 4
+    },
+    "wall_seconds": 10.101673836
+  },
+  {
+    "control": "distinct-queue",
+    "joined": 0,
+    "native_executions": 18,
+    "native_max_concurrency": 2,
+    "outcomes": {
+      "GLOBAL_QUEUE_LIMIT": 46,
+      "success": 18
+    },
+    "repetition": "run-08",
+    "stats": {
+      "active": 0,
+      "artifact_entries": 18,
+      "in_flight": 0,
+      "object_bytes": 0,
+      "object_requests": 0,
+      "queued": 0,
+      "render_calls": 18
+    },
+    "wall_seconds": 3.39730474
+  },
+  {
+    "control": "failure",
+    "joined": 3,
+    "native_executions": 1,
+    "native_max_concurrency": 1,
+    "outcomes": {
+      "MATERIALIZATION_FAILED": 4
+    },
+    "repetition": "run-08",
+    "stats": {
+      "active": 0,
+      "artifact_entries": 0,
+      "in_flight": 0,
+      "object_bytes": 0,
+      "object_requests": 0,
+      "queued": 0,
+      "render_calls": 1
+    },
+    "wall_seconds": 0.108227402
+  },
+  {
+    "control": "same-key",
+    "joined": 63,
+    "native_executions": 1,
+    "native_max_concurrency": 1,
+    "outcomes": {
+      "success": 64
+    },
+    "repetition": "run-08",
+    "stats": {
+      "active": 0,
+      "artifact_entries": 1,
+      "in_flight": 0,
+      "object_bytes": 0,
+      "object_requests": 0,
+      "queued": 0,
+      "render_calls": 1
+    },
+    "wall_seconds": 0.460618867
+  },
+  {
+    "control": "timeout",
+    "joined": 0,
+    "native_executions": 4,
+    "native_max_concurrency": 2,
+    "outcomes": {
+      "TIMEOUT": 4
+    },
+    "repetition": "run-08",
+    "stats": {
+      "active": 0,
+      "artifact_entries": 0,
+      "in_flight": 0,
+      "object_bytes": 0,
+      "object_requests": 0,
+      "queued": 0,
+      "render_calls": 4
+    },
+    "wall_seconds": 10.116404848
+  },
+  {
+    "control": "distinct-queue",
+    "joined": 0,
+    "native_executions": 18,
+    "native_max_concurrency": 2,
+    "outcomes": {
+      "GLOBAL_QUEUE_LIMIT": 46,
+      "success": 18
+    },
+    "repetition": "run-09",
+    "stats": {
+      "active": 0,
+      "artifact_entries": 18,
+      "in_flight": 0,
+      "object_bytes": 0,
+      "object_requests": 0,
+      "queued": 0,
+      "render_calls": 18
+    },
+    "wall_seconds": 3.365258768
+  },
+  {
+    "control": "failure",
+    "joined": 3,
+    "native_executions": 1,
+    "native_max_concurrency": 1,
+    "outcomes": {
+      "MATERIALIZATION_FAILED": 4
+    },
+    "repetition": "run-09",
+    "stats": {
+      "active": 0,
+      "artifact_entries": 0,
+      "in_flight": 0,
+      "object_bytes": 0,
+      "object_requests": 0,
+      "queued": 0,
+      "render_calls": 1
+    },
+    "wall_seconds": 0.09057824
+  },
+  {
+    "control": "same-key",
+    "joined": 63,
+    "native_executions": 1,
+    "native_max_concurrency": 1,
+    "outcomes": {
+      "success": 64
+    },
+    "repetition": "run-09",
+    "stats": {
+      "active": 0,
+      "artifact_entries": 1,
+      "in_flight": 0,
+      "object_bytes": 0,
+      "object_requests": 0,
+      "queued": 0,
+      "render_calls": 1
+    },
+    "wall_seconds": 0.486956947
+  },
+  {
+    "control": "timeout",
+    "joined": 0,
+    "native_executions": 4,
+    "native_max_concurrency": 2,
+    "outcomes": {
+      "TIMEOUT": 4
+    },
+    "repetition": "run-09",
+    "stats": {
+      "active": 0,
+      "artifact_entries": 0,
+      "in_flight": 0,
+      "object_bytes": 0,
+      "object_requests": 0,
+      "queued": 0,
+      "render_calls": 4
+    },
+    "wall_seconds": 10.089220075
+  },
+  {
+    "control": "distinct-queue",
+    "joined": 0,
+    "native_executions": 18,
+    "native_max_concurrency": 2,
+    "outcomes": {
+      "GLOBAL_QUEUE_LIMIT": 46,
+      "success": 18
+    },
+    "repetition": "warmup-00",
+    "stats": {
+      "active": 0,
+      "artifact_entries": 18,
+      "in_flight": 0,
+      "object_bytes": 0,
+      "object_requests": 0,
+      "queued": 0,
+      "render_calls": 18
+    },
+    "wall_seconds": 3.39756213
+  },
+  {
+    "control": "failure",
+    "joined": 3,
+    "native_executions": 1,
+    "native_max_concurrency": 1,
+    "outcomes": {
+      "MATERIALIZATION_FAILED": 4
+    },
+    "repetition": "warmup-00",
+    "stats": {
+      "active": 0,
+      "artifact_entries": 0,
+      "in_flight": 0,
+      "object_bytes": 0,
+      "object_requests": 0,
+      "queued": 0,
+      "render_calls": 1
+    },
+    "wall_seconds": 0.103846308
+  },
+  {
+    "control": "same-key",
+    "joined": 63,
+    "native_executions": 1,
+    "native_max_concurrency": 1,
+    "outcomes": {
+      "success": 64
+    },
+    "repetition": "warmup-00",
+    "stats": {
+      "active": 0,
+      "artifact_entries": 1,
+      "in_flight": 0,
+      "object_bytes": 0,
+      "object_requests": 0,
+      "queued": 0,
+      "render_calls": 1
+    },
+    "wall_seconds": 0.477688284
+  },
+  {
+    "control": "timeout",
+    "joined": 0,
+    "native_executions": 4,
+    "native_max_concurrency": 2,
+    "outcomes": {
+      "TIMEOUT": 4
+    },
+    "repetition": "warmup-00",
+    "stats": {
+      "active": 0,
+      "artifact_entries": 0,
+      "in_flight": 0,
+      "object_bytes": 0,
+      "object_requests": 0,
+      "queued": 0,
+      "render_calls": 4
+    },
+    "wall_seconds": 10.095978301
+  },
+  {
+    "control": "distinct-queue",
+    "joined": 0,
+    "native_executions": 18,
+    "native_max_concurrency": 2,
+    "outcomes": {
+      "GLOBAL_QUEUE_LIMIT": 46,
+      "success": 18
+    },
+    "repetition": "warmup-01",
+    "stats": {
+      "active": 0,
+      "artifact_entries": 18,
+      "in_flight": 0,
+      "object_bytes": 0,
+      "object_requests": 0,
+      "queued": 0,
+      "render_calls": 18
+    },
+    "wall_seconds": 3.402149329
+  },
+  {
+    "control": "failure",
+    "joined": 3,
+    "native_executions": 1,
+    "native_max_concurrency": 1,
+    "outcomes": {
+      "MATERIALIZATION_FAILED": 4
+    },
+    "repetition": "warmup-01",
+    "stats": {
+      "active": 0,
+      "artifact_entries": 0,
+      "in_flight": 0,
+      "object_bytes": 0,
+      "object_requests": 0,
+      "queued": 0,
+      "render_calls": 1
+    },
+    "wall_seconds": 0.094578197
+  },
+  {
+    "control": "same-key",
+    "joined": 63,
+    "native_executions": 1,
+    "native_max_concurrency": 1,
+    "outcomes": {
+      "success": 64
+    },
+    "repetition": "warmup-01",
+    "stats": {
+      "active": 0,
+      "artifact_entries": 1,
+      "in_flight": 0,
+      "object_bytes": 0,
+      "object_requests": 0,
+      "queued": 0,
+      "render_calls": 1
+    },
+    "wall_seconds": 0.468724056
+  },
+  {
+    "control": "timeout",
+    "joined": 0,
+    "native_executions": 4,
+    "native_max_concurrency": 2,
+    "outcomes": {
+      "TIMEOUT": 4
+    },
+    "repetition": "warmup-01",
+    "stats": {
+      "active": 0,
+      "artifact_entries": 0,
+      "in_flight": 0,
+      "object_bytes": 0,
+      "object_requests": 0,
+      "queued": 0,
+      "render_calls": 4
+    },
+    "wall_seconds": 10.079327712
+  }
+]

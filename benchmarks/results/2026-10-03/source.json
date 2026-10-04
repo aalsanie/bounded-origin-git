@@ -1,0 +1,44 @@
+{
+  "anubis_source_commit": "d39e26cedcc96bea5e4915297c756e7eec74aaf7",
+  "archive_sha256": "a7b8faea86a1a74d7ad3af6665e8ed1a903c486cafbec82de6b9fead159499d7",
+  "base_ci": "https://github.com/aalsanie/bounded-origin-git/actions/runs/37021109375",
+  "base_sha": "9f1584a81f26a9ec56d3086a05a144a13ef0f167",
+  "bounded_origin": "0.1.0",
+  "branch": "benchmark/linux-cgit-campaign",
+  "gradle": "9.7.1",
+  "packages": [
+    {
+      "filename": "node-v22.11.0-linux-x64.tar.xz",
+      "name": "node",
+      "sha256": "83bf07dd343002a26211cf1fcd46a9d9534219aad42ee02847816940bf610a72",
+      "source_url": "https://nodejs.org/dist/v22.11.0/node-v22.11.0-linux-x64.tar.xz"
+    },
+    {
+      "filename": "cgit_1.2.3+git20250818.80.3346409+git2.51.0-1_amd64.deb",
+      "name": "cgit",
+      "sha256": "79043ab28ae3e2f08e56d025109cde7a6c71f446f00bf4ed6a9e283b44ba410e",
+      "source_url": "https://deb.debian.org/debian/pool/main/c/cgit/cgit_1.2.3+git20250818.80.3346409+git2.51.0-1_amd64.deb"
+    },
+    {
+      "filename": "liblua5.4-0_5.4.7-1+b2_amd64.deb",
+      "name": "lua",
+      "sha256": "3456e23667f21a5bea4f2182ec878621bf4c47fbc9819fdaad8835d6d1ee6247",
+      "source_url": "https://deb.debian.org/debian/pool/main/l/lua5.4/liblua5.4-0_5.4.7-1+b2_amd64.deb"
+    },
+    {
+      "filename": "anubis.tar.gz",
+      "name": "anubis",
+      "sha256": "092f92b1710ee2eb208f019733f6ce06cbc041884272340bea13635a4515c357",
+      "source_url": "https://github.com/TecharoHQ/anubis/releases/download/v1.27.0/anubis-1.27.0-linux-amd64.tar.gz"
+    },
+    {
+      "filename": "nginx.deb",
+      "name": "nginx",
+      "sha256": "29258fa0e2f4c9162a95eda2c36cf84ee8f57289a14c58fb7e6d3868c61a5db3",
+      "source_url": "https://deb.debian.org/debian/pool/main/n/nginx/nginx_1.26.3-3+deb13u9_amd64.deb"
+    }
+  ],
+  "source_inventory_sha256": "9cdb0848709d7db9a42a25f6d221b2cb4854d965f69fbaa0d62f382fe319ca2a",
+  "tracked_patch_sha256": "48388b4f0920d326eb5c0d47406bf8027063fcb2e96e4e95f05e0a4a8286a411",
+  "worktree_changes_included": true
+}

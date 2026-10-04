@@ -1,0 +1,698 @@
+[
+  {
+    "after": {
+      "block_io": null,
+      "cpu_seconds": 106.3800591,
+      "cpu_throttle": {
+        "nr_periods": "7888",
+        "nr_throttled": "0",
+        "throttled_time": "0"
+      },
+      "memory_bytes": 1444048896,
+      "memory_failures": 0,
+      "memory_oom": {
+        "oom_kill": "0",
+        "oom_kill_disable": "0",
+        "under_oom": "0"
+      },
+      "memory_peak_bytes": 1762955264,
+      "pid_events": {
+        "max": "0"
+      },
+      "pids": 0
+    },
+    "before": {
+      "block_io": null,
+      "cpu_seconds": 0.0,
+      "cpu_throttle": {
+        "nr_periods": "0",
+        "nr_throttled": "0",
+        "throttled_time": "0"
+      },
+      "memory_bytes": 0,
+      "memory_failures": 0,
+      "memory_oom": {
+        "oom_kill": "0",
+        "oom_kill_disable": "0",
+        "under_oom": "0"
+      },
+      "memory_peak_bytes": 0,
+      "pid_events": {
+        "max": "0"
+      },
+      "pids": 0
+    },
+    "end_ns": 4118485236691,
+    "objects": {
+      "created": 158681,
+      "objects": 158681,
+      "payload_bytes": 3174155681,
+      "wall_ns": 788562965950
+    },
+    "repetition": "run-00",
+    "start_ns": 3329858559040,
+    "storage": {
+      "file_allocated_bytes": 1121296384,
+      "file_bytes": 694545763,
+      "file_count": 158681
+    }
+  },
+  {
+    "after": {
+      "block_io": null,
+      "cpu_seconds": 106.1221625,
+      "cpu_throttle": {
+        "nr_periods": "7898",
+        "nr_throttled": "0",
+        "throttled_time": "0"
+      },
+      "memory_bytes": 1442926592,
+      "memory_failures": 0,
+      "memory_oom": {
+        "oom_kill": "0",
+        "oom_kill_disable": "0",
+        "under_oom": "0"
+      },
+      "memory_peak_bytes": 1760907264,
+      "pid_events": {
+        "max": "0"
+      },
+      "pids": 0
+    },
+    "before": {
+      "block_io": null,
+      "cpu_seconds": 0.0,
+      "cpu_throttle": {
+        "nr_periods": "0",
+        "nr_throttled": "0",
+        "throttled_time": "0"
+      },
+      "memory_bytes": 0,
+      "memory_failures": 0,
+      "memory_oom": {
+        "oom_kill": "0",
+        "oom_kill_disable": "0",
+        "under_oom": "0"
+      },
+      "memory_peak_bytes": 0,
+      "pid_events": {
+        "max": "0"
+      },
+      "pids": 0
+    },
+    "end_ns": 5791860436876,
+    "objects": {
+      "created": 158681,
+      "objects": 158681,
+      "payload_bytes": 3174155681,
+      "wall_ns": 789430550048
+    },
+    "repetition": "run-01",
+    "start_ns": 5002297653002,
+    "storage": {
+      "file_allocated_bytes": 1121296384,
+      "file_bytes": 694545763,
+      "file_count": 158681
+    }
+  },
+  {
+    "after": {
+      "block_io": null,
+      "cpu_seconds": 106.8219079,
+      "cpu_throttle": {
+        "nr_periods": "7884",
+        "nr_throttled": "0",
+        "throttled_time": "0"
+      },
+      "memory_bytes": 1445167104,
+      "memory_failures": 0,
+      "memory_oom": {
+        "oom_kill": "0",
+        "oom_kill_disable": "0",
+        "under_oom": "0"
+      },
+      "memory_peak_bytes": 1765040128,
+      "pid_events": {
+        "max": "0"
+      },
+      "pids": 0
+    },
+    "before": {
+      "block_io": null,
+      "cpu_seconds": 0.0,
+      "cpu_throttle": {
+        "nr_periods": "0",
+        "nr_throttled": "0",
+        "throttled_time": "0"
+      },
+      "memory_bytes": 0,
+      "memory_failures": 0,
+      "memory_oom": {
+        "oom_kill": "0",
+        "oom_kill_disable": "0",
+        "under_oom": "0"
+      },
+      "memory_peak_bytes": 0,
+      "pid_events": {
+        "max": "0"
+      },
+      "pids": 0
+    },
+    "end_ns": 7468414964188,
+    "objects": {
+      "created": 158681,
+      "objects": 158681,
+      "payload_bytes": 3174155681,
+      "wall_ns": 788163340999
+    },
+    "repetition": "run-02",
+    "start_ns": 6680158097339,
+    "storage": {
+      "file_allocated_bytes": 1121296384,
+      "file_bytes": 694545763,
+      "file_count": 158681
+    }
+  },
+  {
+    "after": {
+      "block_io": null,
+      "cpu_seconds": 106.6473659,
+      "cpu_throttle": {
+        "nr_periods": "7914",
+        "nr_throttled": "0",
+        "throttled_time": "0"
+      },
+      "memory_bytes": 1443516416,
+      "memory_failures": 0,
+      "memory_oom": {
+        "oom_kill": "0",
+        "oom_kill_disable": "0",
+        "under_oom": "0"
+      },
+      "memory_peak_bytes": 1757163520,
+      "pid_events": {
+        "max": "0"
+      },
+      "pids": 0
+    },
+    "before": {
+      "block_io": null,
+      "cpu_seconds": 0.0,
+      "cpu_throttle": {
+        "nr_periods": "0",
+        "nr_throttled": "0",
+        "throttled_time": "0"
+      },
+      "memory_bytes": 0,
+      "memory_failures": 0,
+      "memory_oom": {
+        "oom_kill": "0",
+        "oom_kill_disable": "0",
+        "under_oom": "0"
+      },
+      "memory_peak_bytes": 0,
+      "pid_events": {
+        "max": "0"
+      },
+      "pids": 0
+    },
+    "end_ns": 9141371435456,
+    "objects": {
+      "created": 158681,
+      "objects": 158681,
+      "payload_bytes": 3174155681,
+      "wall_ns": 791172680724
+    },
+    "repetition": "run-03",
+    "start_ns": 8350110748308,
+    "storage": {
+      "file_allocated_bytes": 1121296384,
+      "file_bytes": 694545763,
+      "file_count": 158681
+    }
+  },
+  {
+    "after": {
+      "block_io": null,
+      "cpu_seconds": 106.4662595,
+      "cpu_throttle": {
+        "nr_periods": "7887",
+        "nr_throttled": "0",
+        "throttled_time": "0"
+      },
+      "memory_bytes": 1443151872,
+      "memory_failures": 0,
+      "memory_oom": {
+        "oom_kill": "0",
+        "oom_kill_disable": "0",
+        "under_oom": "0"
+      },
+      "memory_peak_bytes": 1767768064,
+      "pid_events": {
+        "max": "0"
+      },
+      "pids": 0
+    },
+    "before": {
+      "block_io": null,
+      "cpu_seconds": 0.0,
+      "cpu_throttle": {
+        "nr_periods": "0",
+        "nr_throttled": "0",
+        "throttled_time": "0"
+      },
+      "memory_bytes": 0,
+      "memory_failures": 0,
+      "memory_oom": {
+        "oom_kill": "0",
+        "oom_kill_disable": "0",
+        "under_oom": "0"
+      },
+      "memory_peak_bytes": 0,
+      "pid_events": {
+        "max": "0"
+      },
+      "pids": 0
+    },
+    "end_ns": 10810751698614,
+    "objects": {
+      "created": 158681,
+      "objects": 158681,
+      "payload_bytes": 3174155681,
+      "wall_ns": 788398386365
+    },
+    "repetition": "run-04",
+    "start_ns": 10022291054786,
+    "storage": {
+      "file_allocated_bytes": 1121296384,
+      "file_bytes": 694545763,
+      "file_count": 158681
+    }
+  },
+  {
+    "after": {
+      "block_io": null,
+      "cpu_seconds": 106.407486,
+      "cpu_throttle": {
+        "nr_periods": "7901",
+        "nr_throttled": "0",
+        "throttled_time": "0"
+      },
+      "memory_bytes": 1443549184,
+      "memory_failures": 0,
+      "memory_oom": {
+        "oom_kill": "0",
+        "oom_kill_disable": "0",
+        "under_oom": "0"
+      },
+      "memory_peak_bytes": 1761243136,
+      "pid_events": {
+        "max": "0"
+      },
+      "pids": 0
+    },
+    "before": {
+      "block_io": null,
+      "cpu_seconds": 0.0,
+      "cpu_throttle": {
+        "nr_periods": "0",
+        "nr_throttled": "0",
+        "throttled_time": "0"
+      },
+      "memory_bytes": 0,
+      "memory_failures": 0,
+      "memory_oom": {
+        "oom_kill": "0",
+        "oom_kill_disable": "0",
+        "under_oom": "0"
+      },
+      "memory_peak_bytes": 0,
+      "pid_events": {
+        "max": "0"
+      },
+      "pids": 0
+    },
+    "end_ns": 12506860999988,
+    "objects": {
+      "created": 158681,
+      "objects": 158681,
+      "payload_bytes": 3174155681,
+      "wall_ns": 789845082114
+    },
+    "repetition": "run-05",
+    "start_ns": 11716946564940,
+    "storage": {
+      "file_allocated_bytes": 1121296384,
+      "file_bytes": 694545763,
+      "file_count": 158681
+    }
+  },
+  {
+    "after": {
+      "block_io": null,
+      "cpu_seconds": 103.4766135,
+      "cpu_throttle": {
+        "nr_periods": "6479",
+        "nr_throttled": "0",
+        "throttled_time": "0"
+      },
+      "memory_bytes": 1442942976,
+      "memory_failures": 0,
+      "memory_oom": {
+        "oom_kill": "0",
+        "oom_kill_disable": "0",
+        "under_oom": "0"
+      },
+      "memory_peak_bytes": 1758838784,
+      "pid_events": {
+        "max": "0"
+      },
+      "pids": 0
+    },
+    "before": {
+      "block_io": null,
+      "cpu_seconds": 0.0,
+      "cpu_throttle": {
+        "nr_periods": "0",
+        "nr_throttled": "0",
+        "throttled_time": "0"
+      },
+      "memory_bytes": 0,
+      "memory_failures": 0,
+      "memory_oom": {
+        "oom_kill": "0",
+        "oom_kill_disable": "0",
+        "under_oom": "0"
+      },
+      "memory_peak_bytes": 0,
+      "pid_events": {
+        "max": "0"
+      },
+      "pids": 0
+    },
+    "end_ns": 14042149620788,
+    "objects": {
+      "created": 158681,
+      "objects": 158681,
+      "payload_bytes": 3174155681,
+      "wall_ns": 647619085246
+    },
+    "repetition": "run-06",
+    "start_ns": 13394471552350,
+    "storage": {
+      "file_allocated_bytes": 1121296384,
+      "file_bytes": 694545763,
+      "file_count": 158681
+    }
+  },
+  {
+    "after": {
+      "block_io": null,
+      "cpu_seconds": 106.2120174,
+      "cpu_throttle": {
+        "nr_periods": "7790",
+        "nr_throttled": "0",
+        "throttled_time": "0"
+      },
+      "memory_bytes": 1442594816,
+      "memory_failures": 0,
+      "memory_oom": {
+        "oom_kill": "0",
+        "oom_kill_disable": "0",
+        "under_oom": "0"
+      },
+      "memory_peak_bytes": 1758867456,
+      "pid_events": {
+        "max": "0"
+      },
+      "pids": 0
+    },
+    "before": {
+      "block_io": null,
+      "cpu_seconds": 0.0,
+      "cpu_throttle": {
+        "nr_periods": "0",
+        "nr_throttled": "0",
+        "throttled_time": "0"
+      },
+      "memory_bytes": 0,
+      "memory_failures": 0,
+      "memory_oom": {
+        "oom_kill": "0",
+        "oom_kill_disable": "0",
+        "under_oom": "0"
+      },
+      "memory_peak_bytes": 0,
+      "pid_events": {
+        "max": "0"
+      },
+      "pids": 0
+    },
+    "end_ns": 15707224228841,
+    "objects": {
+      "created": 158681,
+      "objects": 158681,
+      "payload_bytes": 3174155681,
+      "wall_ns": 778825203413
+    },
+    "repetition": "run-07",
+    "start_ns": 14928311222546,
+    "storage": {
+      "file_allocated_bytes": 1121296384,
+      "file_bytes": 694545763,
+      "file_count": 158681
+    }
+  },
+  {
+    "after": {
+      "block_io": null,
+      "cpu_seconds": 106.2410655,
+      "cpu_throttle": {
+        "nr_periods": "7910",
+        "nr_throttled": "0",
+        "throttled_time": "0"
+      },
+      "memory_bytes": 1443217408,
+      "memory_failures": 0,
+      "memory_oom": {
+        "oom_kill": "0",
+        "oom_kill_disable": "0",
+        "under_oom": "0"
+      },
+      "memory_peak_bytes": 1755852800,
+      "pid_events": {
+        "max": "0"
+      },
+      "pids": 0
+    },
+    "before": {
+      "block_io": null,
+      "cpu_seconds": 0.0,
+      "cpu_throttle": {
+        "nr_periods": "0",
+        "nr_throttled": "0",
+        "throttled_time": "0"
+      },
+      "memory_bytes": 0,
+      "memory_failures": 0,
+      "memory_oom": {
+        "oom_kill": "0",
+        "oom_kill_disable": "0",
+        "under_oom": "0"
+      },
+      "memory_peak_bytes": 0,
+      "pid_events": {
+        "max": "0"
+      },
+      "pids": 0
+    },
+    "end_ns": 17381448029665,
+    "objects": {
+      "created": 158681,
+      "objects": 158681,
+      "payload_bytes": 3174155681,
+      "wall_ns": 790712393614
+    },
+    "repetition": "run-08",
+    "start_ns": 16590653281385,
+    "storage": {
+      "file_allocated_bytes": 1121296384,
+      "file_bytes": 694545763,
+      "file_count": 158681
+    }
+  },
+  {
+    "after": {
+      "block_io": null,
+      "cpu_seconds": 109.1884574,
+      "cpu_throttle": {
+        "nr_periods": "7953",
+        "nr_throttled": "0",
+        "throttled_time": "0"
+      },
+      "memory_bytes": 1443053568,
+      "memory_failures": 0,
+      "memory_oom": {
+        "oom_kill": "0",
+        "oom_kill_disable": "0",
+        "under_oom": "0"
+      },
+      "memory_peak_bytes": 1769639936,
+      "pid_events": {
+        "max": "0"
+      },
+      "pids": 0
+    },
+    "before": {
+      "block_io": null,
+      "cpu_seconds": 0.0,
+      "cpu_throttle": {
+        "nr_periods": "0",
+        "nr_throttled": "0",
+        "throttled_time": "0"
+      },
+      "memory_bytes": 0,
+      "memory_failures": 0,
+      "memory_oom": {
+        "oom_kill": "0",
+        "oom_kill_disable": "0",
+        "under_oom": "0"
+      },
+      "memory_peak_bytes": 0,
+      "pid_events": {
+        "max": "0"
+      },
+      "pids": 0
+    },
+    "end_ns": 19082065730677,
+    "objects": {
+      "created": 158681,
+      "objects": 158681,
+      "payload_bytes": 3174155681,
+      "wall_ns": 795010874997
+    },
+    "repetition": "run-09",
+    "start_ns": 18286954050971,
+    "storage": {
+      "file_allocated_bytes": 1121296384,
+      "file_bytes": 694545763,
+      "file_count": 158681
+    }
+  },
+  {
+    "after": {
+      "block_io": null,
+      "cpu_seconds": 107.2044118,
+      "cpu_throttle": {
+        "nr_periods": "7511",
+        "nr_throttled": "0",
+        "throttled_time": "0"
+      },
+      "memory_bytes": 1881722880,
+      "memory_failures": 0,
+      "memory_oom": {
+        "oom_kill": "0",
+        "oom_kill_disable": "0",
+        "under_oom": "0"
+      },
+      "memory_peak_bytes": 2207866880,
+      "pid_events": {
+        "max": "0"
+      },
+      "pids": 0
+    },
+    "before": {
+      "block_io": null,
+      "cpu_seconds": 0.0,
+      "cpu_throttle": {
+        "nr_periods": "0",
+        "nr_throttled": "0",
+        "throttled_time": "0"
+      },
+      "memory_bytes": 0,
+      "memory_failures": 0,
+      "memory_oom": {
+        "oom_kill": "0",
+        "oom_kill_disable": "0",
+        "under_oom": "0"
+      },
+      "memory_peak_bytes": 0,
+      "pid_events": {
+        "max": "0"
+      },
+      "pids": 0
+    },
+    "end_ns": 753570940245,
+    "objects": {
+      "created": 158681,
+      "objects": 158681,
+      "payload_bytes": 3174155681,
+      "wall_ns": 750796083664
+    },
+    "repetition": "warmup-00",
+    "start_ns": 2678571626,
+    "storage": {
+      "file_allocated_bytes": 1121296384,
+      "file_bytes": 694545763,
+      "file_count": 158681
+    }
+  },
+  {
+    "after": {
+      "block_io": null,
+      "cpu_seconds": 108.3994421,
+      "cpu_throttle": {
+        "nr_periods": "7923",
+        "nr_throttled": "0",
+        "throttled_time": "0"
+      },
+      "memory_bytes": 1448779776,
+      "memory_failures": 0,
+      "memory_oom": {
+        "oom_kill": "0",
+        "oom_kill_disable": "0",
+        "under_oom": "0"
+      },
+      "memory_peak_bytes": 1760415744,
+      "pid_events": {
+        "max": "0"
+      },
+      "pids": 0
+    },
+    "before": {
+      "block_io": null,
+      "cpu_seconds": 0.0,
+      "cpu_throttle": {
+        "nr_periods": "0",
+        "nr_throttled": "0",
+        "throttled_time": "0"
+      },
+      "memory_bytes": 0,
+      "memory_failures": 0,
+      "memory_oom": {
+        "oom_kill": "0",
+        "oom_kill_disable": "0",
+        "under_oom": "0"
+      },
+      "memory_peak_bytes": 0,
+      "pid_events": {
+        "max": "0"
+      },
+      "pids": 0
+    },
+    "end_ns": 2433208313168,
+    "objects": {
+      "created": 158681,
+      "objects": 158681,
+      "payload_bytes": 3174155681,
+      "wall_ns": 792082992355
+    },
+    "repetition": "warmup-01",
+    "start_ns": 1641026378430,
+    "storage": {
+      "file_allocated_bytes": 1121296384,
+      "file_bytes": 694545763,
+      "file_count": 158681
+    }
+  }
+]

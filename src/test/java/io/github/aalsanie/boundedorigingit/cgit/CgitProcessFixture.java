@@ -4,6 +4,7 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 
 public final class CgitProcessFixture {
   private CgitProcessFixture() {}
@@ -25,10 +26,13 @@ public final class CgitProcessFixture {
         System.out.flush();
       }
       Path pidFile = Path.of(search.substring(search.indexOf(':') + 1));
+      Path stagedPid = Files.createTempFile(pidFile.getParent(), "renderer-", ".pid.tmp");
       Files.writeString(
-          pidFile,
+          stagedPid,
           Long.toString(ProcessHandle.current().pid()),
           StandardCharsets.US_ASCII);
+      // The parent treats this path as readiness, so it must contain the complete PID.
+      Files.move(stagedPid, pidFile, StandardCopyOption.ATOMIC_MOVE);
       while (true) {
         Thread.sleep(1000);
       }

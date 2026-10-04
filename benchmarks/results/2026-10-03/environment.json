@@ -1,0 +1,173 @@
+{
+  "artifact_bytes_limit": 134217728,
+  "binaries": {
+    "anubis": {
+      "sha256": "43a02b1d3908d3d775fe9454140f91ac36843320bc3d3712b33b638f38e801ac"
+    },
+    "cgit": {
+      "sha256": "1fab72415619386b1019e127a97111db94f6a7f89e3a1d2d9c73007439771cca"
+    },
+    "java": {
+      "sha256": "a9b863fef7d6be9217f2a7ac125425b95c2453f17308f56b89fe215dd39cf3b6"
+    },
+    "nginx": {
+      "sha256": "254fac73e79add393fef33f514bc91b8a98ad1966c2b43c77a98c9359580a6d8"
+    },
+    "node": {
+      "sha256": "08a8fa363038215afda76c21853ec2c64b405b2610ba4ff04ef09448997f982d"
+    }
+  },
+  "bundle_sha256": {
+    "classes/io/github/aalsanie/boundedorigingit/benchmark/BenchmarkApplication$Application$1.class": "675f630c1125c45d09fc48721372532df4e95858ec3c36c4e6d684476e7e283c",
+    "classes/io/github/aalsanie/boundedorigingit/benchmark/BenchmarkApplication$Application.class": "494485d90ca21d8119bfed5f0c54c6e5d0efe7488a5c17d38db420780948a6e1",
+    "classes/io/github/aalsanie/boundedorigingit/benchmark/BenchmarkApplication$LimitedInput.class": "ee75589886449276de36eb89047a9ebe7de92742a7f81effff3afe2f82435768",
+    "classes/io/github/aalsanie/boundedorigingit/benchmark/BenchmarkApplication$Repository.class": "21760673ef1ba89e47fa3b14092cec1d67dfb99dacd0f9971203f64179c6b50d",
+    "classes/io/github/aalsanie/boundedorigingit/benchmark/BenchmarkApplication.class": "4231ac0c091e51f1f732691e044e3ca4a65b8eac3a1f3a7ad9765d68eefe3f42",
+    "classes/io/github/aalsanie/boundedorigingit/cgit/CgitArtifactNamespace.class": "6408af290db29b6dad20bbb0c6a53b80cff1744461bc38a63009a0086b79e9c3",
+    "classes/io/github/aalsanie/boundedorigingit/cgit/CgitArtifactService$Materialization.class": "d45baaa677961f11aaaaf04374fd1c1d42ca9a7fca464d2a143c9a5dd9779770",
+    "classes/io/github/aalsanie/boundedorigingit/cgit/CgitArtifactService.class": "4fa02f9fcd4a25ea12e9cc152f712a32cc9bb389aee58c80fb1ec1829ad33a22",
+    "classes/io/github/aalsanie/boundedorigingit/cgit/CgitComparisonClientCompute.class": "a5c2a5bf89cc863079f849fa9659c08a07aebd1352723d783ca28c9aefaf4ffe",
+    "classes/io/github/aalsanie/boundedorigingit/cgit/CgitMaterializationBatch.class": "415bb69b20b2f217db4a8b39f54908f1fb5f43f19dad202662e7149cb4964935",
+    "classes/io/github/aalsanie/boundedorigingit/cgit/CgitRefResolver.class": "d57124afb967d291732199c4e99349435b33bfd56016ee175568939f02fc159f",
+    "classes/io/github/aalsanie/boundedorigingit/cgit/CgitRenderExecutor.class": "74280711d39d3e6a45874796bf0f6826b23097ef49ca74895462f96a98f9ae9f",
+    "classes/io/github/aalsanie/boundedorigingit/cgit/CgitRenderOnWriteCoordinator.class": "d456649df9951aedd279d9028f92c71d74ea7a88dccab9bd086023667c2935f9",
+    "classes/io/github/aalsanie/boundedorigingit/cgit/CgitRenderer.class": "25d6d8798be1222b8d8816e44bf979bfe4b6e531e49b607e95b1d51e72aec87a",
+    "classes/io/github/aalsanie/boundedorigingit/cgit/CgitSemanticClassifier$Route.class": "c18bfd5817059b53e412a2ec9a23464b6490137eabe5ae35bf76c481b23a4238",
+    "classes/io/github/aalsanie/boundedorigingit/cgit/CgitSemanticClassifier.class": "41b5b4df68e153bb78b829ebce822e885ccc644a66f54553a178da1cc3a54401",
+    "classes/io/github/aalsanie/boundedorigingit/cgit/ProcessCgitRenderer$HeaderBlock.class": "4aca62485002bd27f98bb0f7d05fa38c0a00d106cbaa9560f22b0d634cae5586",
+    "classes/io/github/aalsanie/boundedorigingit/cgit/ProcessCgitRenderer$TemporaryBody.class": "dd61991e93a404b2765c0a113218670b8fe859a551d158dc5de1454cd9f67b77",
+    "classes/io/github/aalsanie/boundedorigingit/cgit/ProcessCgitRenderer.class": "20f0df59cee0c686a6fe9f49ce35ead3cc786cc3b803b354ca374c519221f2ac",
+    "classes/io/github/aalsanie/boundedorigingit/client/cgit-compare-v1.mjs": "4e9a5001cd58bdec54b0cd4fc10aed3e1a4bf159538fec0ebba90bbaefd17ec0",
+    "classes/io/github/aalsanie/boundedorigingit/client/cgit-comparison-request-v1.mjs": "3f7b70393f80c8a1d6b9b53c6f4ab59d54bf358f0a36e6c517499046a03e6c9c",
+    "classes/io/github/aalsanie/boundedorigingit/git/GitHashAlgorithm.class": "5cedc072daa68b761bb03b31587723742d0d998057662daf33dd17c864c91364",
+    "classes/io/github/aalsanie/boundedorigingit/git/GitObjectId.class": "596ac21633759d4afe3f5ceb7dec4c313a32b5c4ceaa197d8e1e98d42afaf853",
+    "classes/io/github/aalsanie/boundedorigingit/git/GitObjectIntegrityException.class": "f85c979bd669d370b850b39a64d4d9ea7b42d6b8edf041a2034921bea347b1b7",
+    "classes/io/github/aalsanie/boundedorigingit/git/GitObjectStore$Result.class": "7df78bf1157288deff18e433c8e0da1e3b6c6cdb53249b2ced862aea0c186b4a",
+    "classes/io/github/aalsanie/boundedorigingit/git/GitObjectStore.class": "6cbe91220e3184fb942001c64e469d58654148f8322b41df58dc20349a030ba7",
+    "classes/io/github/aalsanie/boundedorigingit/git/GitObjectType.class": "8736e701a6f7773076906411809937561e4a5f91ea0f1e092317d9e3d4f99ea7",
+    "classes/io/github/aalsanie/boundedorigingit/git/GitRefName.class": "87b1a2710d9da554a7efae4c5e0b549536e74c973aa25b26a81db5dc24166ae3",
+    "classes/io/github/aalsanie/boundedorigingit/git/GitRepositoryView.class": "a5468d7c8cbaa79f2c595956cd0c313dc23b182af52f9f041b39398e19449398",
+    "classes/io/github/aalsanie/boundedorigingit/git/GitRepositoryViewFactory.class": "78b1205dcef71a5db319b3610afcb787c20a5503d6033bb07d965ba4f5a700af",
+    "classes/io/github/aalsanie/boundedorigingit/git/RefGenerationConflictException.class": "fed87d53d1aecee2831797d69304673709b7f819f16823226ab021726c3168f1",
+    "classes/io/github/aalsanie/boundedorigingit/git/RefGenerationIntegrityException.class": "2f21268ba19c626f2652f3fa35ae6e74386ee9c37a687d140c53d540be198f30",
+    "classes/io/github/aalsanie/boundedorigingit/git/RefGenerationSnapshot.class": "8bac64020b1893ea07f1b02f8c1c0d8082b3473f4f791820ffe2cba4526511ed",
+    "classes/io/github/aalsanie/boundedorigingit/git/RefGenerationStore.class": "8ef3939338c2c7fcbd8862f183cf5ab09dc41b9fb2cc054c2ec396f55ca0047b",
+    "classes/io/github/aalsanie/boundedorigingit/git/RenderOnWriteIngestor.class": "254f689d0a8800079513a8d52d17e282250c39aa230ee32e760b0fb03112e551",
+    "classes/io/github/aalsanie/boundedorigingit/git/RenderOnWritePlanner.class": "c0bd22e9cab83053cd1b833e03bccee46af5298b43545ac83119d733f42fe5c2",
+    "classes/io/github/aalsanie/boundedorigingit/git/RenderOnWriteSubmission.class": "1990d287dacf5acaf0a9b120a41fd351e52b8edfd9207ae0f4072f8b8e51df4b",
+    "classes/io/github/aalsanie/boundedorigingit/git/RepositoryUpdateEvent.class": "ff2e449a8332d4cca0e2cc2a8f6c76713454b56465793838ed4cff08d2850f43",
+    "lib/bounded-origin-api-0.1.0.jar": "2db2f24f6147816261e2e6d491faf4a31a076a5eb18a67f3f73595c5c6d5fd95",
+    "lib/bounded-origin-core-0.1.0.jar": "4c0c7dbe274382020048ff46e5128b91645d85075e181b50ee532f17df8f7427",
+    "lib/bounded-origin-proxy-0.1.0.jar": "381341752a979cc652c2316a27bd8d7efcc7be3e7a08e65a3058ac4b7d4537c2",
+    "lib/bounded-origin-store-fs-0.1.0.jar": "69b2191f30605452369680c0617f6710ece5461ae832ca9923fbd45e9e47311a",
+    "lib/netty-buffer-4.2.18.Final.jar": "fdf236d2b76aa9710684401fdad7dff9dec56e43da5d39172c9a55ba5f14b360",
+    "lib/netty-codec-base-4.2.18.Final.jar": "7e4612bead7ba88ac6f7908fa722f90ad6835ea96505c9e40b2f93686c1f61f3",
+    "lib/netty-codec-compression-4.2.18.Final.jar": "9d8a4b9a6a2a166ec5a4bbe51a78b4f6a726457c51d81495743c7e7ccb9f4765",
+    "lib/netty-codec-http-4.2.18.Final.jar": "2d50765eb58591ce35146c54ca032a257808d2165d8985a8522c70ea1470e8d7",
+    "lib/netty-common-4.2.18.Final.jar": "5d97cae5669685872339698efe13f74fe3cdb2dccdb36963b2352bd95acf7070",
+    "lib/netty-handler-4.2.18.Final.jar": "6d5a08d9dd6d7d0211202e22dbb1629b23a62550335c7e80892da1d4cb115540",
+    "lib/netty-resolver-4.2.18.Final.jar": "68373ec544cf769ba17bf2ef455166d98f2c260dff536edf35ef57067a9c155f",
+    "lib/netty-transport-4.2.18.Final.jar": "eac4f12068db4489e60c6520fad663e5d872f0436a7c641aa9e08db649947863",
+    "lib/netty-transport-native-unix-common-4.2.18.Final.jar": "cada7023d09136af128511ca94421d69dc84d0f1f64c9e1f127a1271bb62932a",
+    "scripts/campaign.py": "ec91095922fd7bcbe638ab5ee46be4a24c36bb022690b363f7bf04e7651fc92a",
+    "scripts/cgi_meter.py": "c1a526f41f8d28701bacb5d4ebff32422e4ce68251738d7dd54924b69982470c",
+    "scripts/client.mjs": "5a4e97e782954094f0a819051ca65f8e318a89d209012ad9d4f3416614afae98",
+    "scripts/common.py": "9808a85c85e800263f3398c03f9e210d445ea3a5c09270093d1315973e214780",
+    "scripts/config.example.json": "14dbb2f3a472c509814da408550e942fc39ecb26aafe2f35a42f589476bc7f9e",
+    "scripts/origin.py": "3b0891d864b5721719417b8af7132ee3cfa1791bfe7757e2c577a6754ac13008",
+    "scripts/prepare.py": "75ed0dad8b92f96d5a6a784956d7e4b0f7d5cc4ec3895515dc4382f2ac51a068",
+    "scripts/protocol.md": "a694bfebb574dbf933ebe46fac6b0d33f42303279d6cb375e962c5259a34fb00",
+    "scripts/summarize.py": "8d8ab8583c07e87533cfb8bee9513ad85706fa05fc1aa68fa4d833b9d958bca2",
+    "scripts/test_campaign.py": "79087ffbd0aa1bba557c89a57c3cab58f248d0f0dfcc02466b982243c3111b13",
+    "scripts/test_client.mjs": "c03dd01c26ec347f60efe4707602e00fae7d2cb1c1de5ce77a51f3f539f516d5",
+    "scripts/test_lifecycle.py": "e28a1af804b45654b66746753bddcf409764b51c9484c1e3c06fe00bc5262d77",
+    "scripts/validate_runtime.py": "ad07cf51efbe2cd4705f2236aa9456c444e5297defa17148039904a0e991368a",
+    "tools/anubis": "43a02b1d3908d3d775fe9454140f91ac36843320bc3d3712b33b638f38e801ac",
+    "tools/cgit": "1fab72415619386b1019e127a97111db94f6a7f89e3a1d2d9c73007439771cca",
+    "tools/lib/liblua5.4-c++.so.0": "771604825ef9105ba4f1b1fd2498370ed7274e64f7d05e3605cac245fda54667",
+    "tools/lib/liblua5.4-c++.so.0.0.0": "771604825ef9105ba4f1b1fd2498370ed7274e64f7d05e3605cac245fda54667",
+    "tools/lib/liblua5.4.so.0": "4c51276430a3d9e130169bff107c441f12a4cfe0b75ebb59c73cda8ad9f622ba",
+    "tools/lib/liblua5.4.so.0.0.0": "4c51276430a3d9e130169bff107c441f12a4cfe0b75ebb59c73cda8ad9f622ba",
+    "tools/nginx": "254fac73e79add393fef33f514bc91b8a98ad1966c2b43c77a98c9359580a6d8",
+    "tools/node": "08a8fa363038215afda76c21853ec2c64b405b2610ba4ff04ef09448997f982d"
+  },
+  "cgit_active_limit": 2,
+  "client_cache_bytes_per_session": 8388608,
+  "client_cpus": [
+    2,
+    3
+  ],
+  "client_memory_bytes": 2147483648,
+  "container": null,
+  "cpu_online": "0-13",
+  "cpu_quota_cores_per_group": 2,
+  "java_flags": [
+    "-Xms128m",
+    "-Xmx768m",
+    "-XX:ActiveProcessorCount=2",
+    "-XX:+UseG1GC"
+  ],
+  "kernel": "Linux-5.15.153.1-microsoft-standard-WSL2-x86_64-with-glibc2.41",
+  "linked_library_sha256": {
+    "/tmp/bounded-origin-git-campaign/campaign-2026-10-03-r2/bundle/tools/lib/liblua5.4.so.0.0.0": "4c51276430a3d9e130169bff107c441f12a4cfe0b75ebb59c73cda8ad9f622ba",
+    "/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2": "daa5744b852336bc1ede78a80da7ba555ec92f92ee5b22d36c29b1684f885b9b",
+    "/usr/lib/x86_64-linux-gnu/libc.so.6": "56e42210fbaee005355b622121fec8b0c16ca80837eddce3e3557075103dda78",
+    "/usr/lib/x86_64-linux-gnu/libcrypt.so.1.1.0": "035882f701a6aa53946af9dcf9ad0f4fc03df5df431ca9166defa5cb2b8f9002",
+    "/usr/lib/x86_64-linux-gnu/libcrypto.so.3": "2d888694008a4a77ad36761c50b7a3463c931f458b65d5b7caf7ef75c8091cc3",
+    "/usr/lib/x86_64-linux-gnu/libdl.so.2": "295fa521a03cd2faa99974f378c9e23dd622021ec7d32bcad4f8ea61aec8a872",
+    "/usr/lib/x86_64-linux-gnu/libgcc_s.so.1": "280279277a31a9e7269ee949718a95a8006da32fa6ab1225a8112143b77d14f7",
+    "/usr/lib/x86_64-linux-gnu/libm.so.6": "759506ba4ed410f7b926704547db1bd31896ffb4f1a79d6b75884af239bcf21b",
+    "/usr/lib/x86_64-linux-gnu/libpcre2-8.so.0.14.0": "1d6f50d715b2dc628f95a760e294fffd14e9be88caf5d848ca6114ad56596605",
+    "/usr/lib/x86_64-linux-gnu/libpthread.so.0": "85e21f7dba0394411d00959176fd18b470e575b0b05f1f4f41e5636802ce0500",
+    "/usr/lib/x86_64-linux-gnu/libssl.so.3": "c29778011136a95bc61892d6be94622e1cc013adc32e132aba377c69bce530f6",
+    "/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.34": "878f0317f8da554f8a45489706fb98ec0c0dbaf99c86ca5cf2f4dea16dde4ed1",
+    "/usr/lib/x86_64-linux-gnu/libz.so.1.3.1": "85590dd58edf5445e18bc7193e5ebc01ac5841f1ae187e97705a662e90c6421e",
+    "/usr/lib/x86_64-linux-gnu/libzstd.so.1.5.7": "27f07c9a49c2c956bcfb64cd4712976586a66facbf15fc7f09bc37413b5f2b21"
+  },
+  "network": {
+    "ephemeral_range": [
+      32768,
+      60999
+    ],
+    "service_ports": {
+      "anubis": 18081,
+      "metrics": 18082,
+      "nginx": 18080
+    }
+  },
+  "os_release": "PRETTY_NAME=\"Kali GNU/Linux Rolling\"\nNAME=\"Kali GNU/Linux\"\nVERSION_ID=\"2025.3\"\nVERSION=\"2025.3\"\nVERSION_CODENAME=kali-rolling\nID=kali\nID_LIKE=debian\nHOME_URL=\"https://www.kali.org/\"\nSUPPORT_URL=\"https://forums.kali.org/\"\nBUG_REPORT_URL=\"https://bugs.kali.org/\"\nANSI_COLOR=\"1;31\"\n",
+  "page_cache": "OS page cache is not dropped; cold/warm describes application artifact/cache state",
+  "python": "3.13.7 (main, Aug 20 2025, 22:17:40) [GCC 14.3.0]",
+  "schema": 1,
+  "server_cpus": [
+    0,
+    1
+  ],
+  "server_memory_bytes": 4294967296,
+  "trusted_render_active_limit": 2,
+  "trusted_render_queue_limit": 16,
+  "trusted_render_timeout_seconds": 5,
+  "utc": "2026-10-03T12:07:48Z",
+  "versions": {
+    "anubis": {
+      "exit_code": 0,
+      "output": "Anubis v1.27.0\n"
+    },
+    "git": {
+      "exit_code": 0,
+      "output": "git version 2.50.1\n"
+    },
+    "java": {
+      "exit_code": 0,
+      "output": "openjdk version \"21.0.9\" 2025-10-21\nOpenJDK Runtime Environment (build 21.0.9+10-Debian-1)\nOpenJDK 64-Bit Server VM (build 21.0.9+10-Debian-1, mixed mode, sharing)\n"
+    },
+    "nginx": {
+      "exit_code": 0,
+      "output": "nginx version: nginx/1.26.3\n"
+    },
+    "node": {
+      "exit_code": 0,
+      "output": "v22.11.0\n"
+    }
+  }
+}

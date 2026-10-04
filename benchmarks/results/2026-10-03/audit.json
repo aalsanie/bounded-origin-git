@@ -1,0 +1,49 @@
+{
+  "bundle_files_verified": 72,
+  "bundle_inventory_sha256": "a5ce1d0b87c4b140e048120f136119d79e1b07fc7d59825378e97909c78e88fa",
+  "bytes_verified": 5888931224,
+  "cells": 1344,
+  "clean_shutdowns": 1404,
+  "control_native_executions": 288,
+  "controls": 48,
+  "dataset_files_verified": 39,
+  "files_verified": 29617,
+  "finished_utc": "2026-10-03T17:40:50Z",
+  "ingestions": 12,
+  "jdk_files_verified": 309,
+  "linked_libraries_verified": 14,
+  "measured_bounded_attempts": 47200,
+  "measured_bounded_native_executions": 0,
+  "measured_comparison_errors": {
+    "Git file budget exceeded": 160,
+    "Git tree entry budget exceeded": 400,
+    "blob exceeds configured line limit": 80,
+    "line diff complexity budget exceeded": 118
+  },
+  "measured_outcomes": {
+    "artifact_miss": 23038,
+    "challenge": 23440,
+    "comparison_limit": 758,
+    "delivered": 139964,
+    "semantic_mismatch": 640
+  },
+  "measured_request_phases": 1210,
+  "passed": true,
+  "process_exits": {
+    "after-publication.process.json:0": 96,
+    "after-update-preparation.process.json:0": 12,
+    "anubis.process.json:0": 504,
+    "gateway.process.json:143": 384,
+    "ingestion.process.json:0": 12,
+    "nginx.process.json:0": 336,
+    "origin.process.json:0": 1008,
+    "requests.process.json:0": 1344
+  },
+  "request_phases": 1452,
+  "requests": 225408,
+  "resource_samples": 181133,
+  "result_inventory_sha256": "b8f60c8e79d0db038d29dc6ae77505996ed8d72e7af73727d0cb82d7336b368c",
+  "source_archive_sha256": "a7b8faea86a1a74d7ad3af6665e8ed1a903c486cafbec82de6b9fead159499d7",
+  "started_utc": "2026-10-03T12:07:48Z",
+  "traffic_and_preparation_native_executions": 112556
+}

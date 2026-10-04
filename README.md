@@ -133,7 +133,7 @@ flowchart LR
     O --> B
 ```
 
-Built on released **[Bounded Origin 0.1.0](https://github.com/aalsanie/bounded-origin#usage)** artifacts from Maven Central. See the [benchmark application](src/benchmark/java/io/github/aalsanie/boundedorigingit/benchmark/BenchmarkApplication.java) for the integration.
+See the [benchmark application](src/benchmark/java/io/github/aalsanie/boundedorigingit/benchmark/BenchmarkApplication.java)
 
 ## Reproduce
 
